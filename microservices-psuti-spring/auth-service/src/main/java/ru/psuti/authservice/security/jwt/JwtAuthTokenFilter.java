@@ -18,11 +18,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.psuti.authservice.model.User;
-import ru.psuti.authservice.security.services.CustomLdapUserDetailsImpl;
+import ru.psuti.authservice.security.CustomLdapUserDetailsImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JwtAuthTokenFilter extends OncePerRequestFilter {
@@ -51,11 +51,13 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
                                 ))
                         .get(0);
 
-                Collection<GrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(user.getCn()));
 
                 LdapUserDetails userDetails = CustomLdapUserDetailsImpl.build(user);
-//                UserDetails userDetails = ldapUserDetailsService.loadUserByUsername(username);
+
+                List<GrantedAuthority> authorities = user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                        .collect(Collectors.toList());
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
                         null,
                         authorities);

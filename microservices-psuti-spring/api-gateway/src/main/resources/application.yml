@@ -1,0 +1,70 @@
+server:
+  port: 9090
+
+
+spring:
+  application:
+    name: API-GATEWAY
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/student/**
+            - Path=/teacher/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackuri: forward:/userServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+        - id: AUTH-SERVICE
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: AUTH-SERVICE
+                fallbackuri: forward:/authServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+        - id: FILE-SERVICE
+          uri: lb://FILE-SERVICE
+          predicates:
+            - Path=/files/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: FILE-SERVICE
+                fallbackuri: forward:/fileServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
+
+logging:
+  level:
+    org.springframework: DEBUG
+
+security:
+  jwt-secret: uQZ4Ywv3Pb9LnRc8KsGm2FhTjXnZr5xVp1DqAeSg8Bw3VyFm5Kd9Kj2Nn8YhRd5

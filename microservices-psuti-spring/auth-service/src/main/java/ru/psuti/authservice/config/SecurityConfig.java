@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.ldap.LdapBindAuthenticationManagerFactory;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.psuti.authservice.security.jwt.JwtAccessDeniedHandler;
@@ -85,13 +86,26 @@ public class SecurityConfig {
     public AuthenticationManager authManager(BaseLdapPathContextSource source) {
         LdapBindAuthenticationManagerFactory factory = new LdapBindAuthenticationManagerFactory(source);
         factory.setUserDnPatterns("cn={0},ou=users,ou=system");
+
+
+
+        factory.setLdapAuthoritiesPopulator(ldapAuthoritiesPopulator());
+
         return factory.createAuthenticationManager();
+    }
+
+
+
+    @Bean
+    public DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
+        return new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=groups,ou=system");
+
     }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web ->
-                web.ignoring().requestMatchers("/api/login"));
+                web.ignoring().requestMatchers("/auth/login"));
     }
 
     @Bean

@@ -1,24 +1,20 @@
 package ru.psuti.authservice.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import ru.psuti.authservice.payload.request.LoginRequest;
-import ru.psuti.authservice.payload.response.JwtResponse;
 import ru.psuti.authservice.payload.response.LdapResponse;
-import ru.psuti.authservice.payload.response.MessageResponse;
 import ru.psuti.authservice.service.AuthService;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("http://localhost:3000/")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api") // /api
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;

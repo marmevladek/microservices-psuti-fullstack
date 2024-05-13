@@ -12,6 +12,4 @@ import lombok.Setter;
 public class LdapResponse {
     private String cn;
     private String sn;
-    private String password;
-    private String username; //uid
 }

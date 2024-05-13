@@ -1,4 +1,4 @@
-package ru.psuti.authservice.security.services;
+package ru.psuti.authservice.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,9 +8,10 @@ import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import ru.psuti.authservice.model.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Getter
@@ -21,14 +22,19 @@ public class CustomLdapUserDetailsImpl extends LdapUserDetailsImpl implements Ld
     private String cn;
     private String sn;
     private String password;
+    private Collection<GrantedAuthority> authorities;
 
     public static CustomLdapUserDetailsImpl build(User user) {
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
 
         return new CustomLdapUserDetailsImpl(
                 user.getUid(),
                 user.getCn(),
                 user.getSn(),
-                user.getUserPassword());
+                user.getUserPassword(),
+                authorities);
     }
 
 
@@ -44,8 +50,6 @@ public class CustomLdapUserDetailsImpl extends LdapUserDetailsImpl implements Ld
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(sn));
         return authorities;
     }
 
@@ -87,3 +91,4 @@ public class CustomLdapUserDetailsImpl extends LdapUserDetailsImpl implements Ld
         return Objects.equals(uid, that.uid) && Objects.equals(cn, that.cn) && Objects.equals(sn, that.sn) && Objects.equals(password, that.password);
     }
 }
+

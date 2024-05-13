@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,9 +27,6 @@ public class JwtUtils {
     private int jwtExpirationInMs;
 
 
-    private LdapUserSearch ldapUserSearch;
-
-    private LdapUserDetailsService ldapUserDetailsService;
 
     public String generateToken(Authentication authentication) {
         LdapUserDetailsImpl userDetails = (LdapUserDetailsImpl) authentication.getPrincipal();

@@ -6,11 +6,12 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.stereotype.Service;
 import ru.psuti.authservice.payload.request.LoginRequest;
-import ru.psuti.authservice.payload.response.JwtResponse;
+import ru.psuti.authservice.payload.response.AuthResponse;
 import ru.psuti.authservice.payload.response.LdapResponse;
 import ru.psuti.authservice.security.jwt.JwtUtils;
 import ru.psuti.authservice.service.AuthService;
@@ -29,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public JwtResponse authenticate(LoginRequest loginRequest) {
+    public AuthResponse authenticate(LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getCn(), loginRequest.getUserPassword()));
@@ -40,16 +41,16 @@ public class AuthServiceImpl implements AuthService {
 
         LdapUserDetailsImpl userDetails = (LdapUserDetailsImpl) authentication.getPrincipal();
 
-
-        System.out.println(userDetails.getAuthorities());
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         return ldapTemplate.search(BASE_DN, "(cn=" + loginRequest.getCn() + ")",
-                        (AttributesMapper<JwtResponse>) attributes ->
-                                new JwtResponse(
-                                        jwt,
-                                        userDetails.getUsername(),
-                                        attributes.get("uid").get().toString(),
-                                        attributes.get("sn").get().toString()
-                                ))
+                (AttributesMapper<AuthResponse>) attributes ->
+                new AuthResponse(
+                        attributes.get("uid").get().toString(),
+                        roles,
+                        jwt
+                ))
                 .get(0);
     }
 
@@ -59,9 +60,7 @@ public class AuthServiceImpl implements AuthService {
                     (AttributesMapper<LdapResponse>) attributes ->
                             new LdapResponse(
                                     attributes.get("cn").get().toString(),
-                                    attributes.get("sn").get().toString(),
-                                    attributes.get("userPassword").get().toString(),
-                                    attributes.get("uid").get().toString()
+                                    attributes.get("sn").get().toString()
             ));
     }
 
@@ -71,9 +70,7 @@ public class AuthServiceImpl implements AuthService {
                 (AttributesMapper<LdapResponse>) attributes ->
                         new LdapResponse(
                                 attributes.get("cn").get().toString(),
-                                attributes.get("sn").get().toString(),
-                                attributes.get("userPassword").get().toString(),
-                                attributes.get("uid").get().toString()
+                                attributes.get("sn").get().toString()
                         )
         );
 
