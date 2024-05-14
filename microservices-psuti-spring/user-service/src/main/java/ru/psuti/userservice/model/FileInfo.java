@@ -23,14 +23,9 @@ public class FileInfo {
     private String name;
 
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "request_id")
-    private Request request;
 
-    public FileInfo(String path, String name, Request request) {
+    public FileInfo(String path, String name) {
         this.path = path;
         this.name = name;
-        this.request = request;
     }
 }

@@ -3,6 +3,7 @@ package ru.psuti.fileservice.service;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 import ru.psuti.fileservice.message.ResponseMessage;
+import ru.psuti.fileservice.payload.RequestFileDelete;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -17,6 +18,6 @@ public interface FileService {
 
     Stream<Path> loadAll();
 
-//    void deleteAll()
+    boolean delete(RequestFileDelete requestFileDelete);
 
 }

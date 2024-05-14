@@ -8,11 +8,11 @@ import lombok.Setter;
 import java.time.Instant;
 
 @Entity
-@Table(name = "requests")
+@Table(name = "handling")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Request {
+public class Handling {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,8 +39,28 @@ public class Request {
     @Column(name = "status")
     private Boolean status;
 
+    @Column(name = "student_uid")
+    private String studentUid;
 
-    public Request(String studentGroup, String studentName, String studentLastName, Instant departureDate, Instant dateOfInspection, String comment, Boolean status) {
+    @Column(name = "teacher_uid")
+    private String teacherUid;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "file_id")
+    private FileInfo file;
+
+
+    public Handling(String studentGroup,
+                    String studentName,
+                    String studentLastName,
+                    Instant departureDate,
+                    Instant dateOfInspection,
+                    String comment,
+                    Boolean status,
+                    String studentUid,
+                    String teacherUid,
+                    FileInfo file) {
         this.studentGroup = studentGroup;
         this.studentName = studentName;
         this.studentLastName = studentLastName;
@@ -48,5 +68,8 @@ public class Request {
         this.dateOfInspection = dateOfInspection;
         this.comment = comment;
         this.status = status;
+        this.studentUid = studentUid;
+        this.teacherUid = teacherUid;
+        this.file = file;
     }
 }

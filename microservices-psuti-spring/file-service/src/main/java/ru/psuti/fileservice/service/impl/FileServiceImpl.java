@@ -2,6 +2,7 @@ package ru.psuti.fileservice.service.impl;
 
 import lombok.extern.log4j.Log4j2;
 import ru.psuti.fileservice.message.ResponseMessage;
+import ru.psuti.fileservice.payload.RequestFileDelete;
 import ru.psuti.fileservice.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -73,6 +74,17 @@ public class FileServiceImpl implements FileService {
                     .map(this.root::relativize);
         } catch (IOException e) {
             throw new RuntimeException("Could not read the files!");
+        }
+    }
+
+    @Override
+    public boolean delete(RequestFileDelete requestFileDelete) {
+        Path newRoot = Path.of(this.root + requestFileDelete.getPath());
+        try {
+            Path file = newRoot.resolve(requestFileDelete.getName());
+            return Files.deleteIfExists(file);
+        } catch (IOException e) {
+            throw new RuntimeException("Error occurred: " + e.getMessage());
         }
     }
 }
