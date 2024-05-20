@@ -2,7 +2,7 @@ package ru.psuti.fileservice.service.impl;
 
 import lombok.extern.log4j.Log4j2;
 import ru.psuti.fileservice.message.ResponseMessage;
-import ru.psuti.fileservice.payload.RequestFileDelete;
+import ru.psuti.fileservice.payload.FileDto;
 import ru.psuti.fileservice.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -50,38 +49,21 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Resource load(String filename) {
+    public Resource downloadFile(String path, String name) {
         try {
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
+            Path file = Paths.get(this.root + path);
 
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Could not read the file: " + filename);
-            }
+            return new UrlResource(file.toUri());
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            throw new RuntimeException("Error occurred: " + e.getMessage());
         }
     }
 
     @Override
-    public Stream<Path> loadAll() {
+    public boolean delete(FileDto fileDto) {
+        Path newRoot = Path.of(this.root + fileDto.getPath());
         try {
-            return Files.walk(this.root, 1)
-                    .filter(path ->
-                            !path.equals(this.root))
-                    .map(this.root::relativize);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not read the files!");
-        }
-    }
-
-    @Override
-    public boolean delete(RequestFileDelete requestFileDelete) {
-        Path newRoot = Path.of(this.root + requestFileDelete.getPath());
-        try {
-            Path file = newRoot.resolve(requestFileDelete.getName());
+            Path file = newRoot.resolve(fileDto.getName());
             return Files.deleteIfExists(file);
         } catch (IOException e) {
             throw new RuntimeException("Error occurred: " + e.getMessage());

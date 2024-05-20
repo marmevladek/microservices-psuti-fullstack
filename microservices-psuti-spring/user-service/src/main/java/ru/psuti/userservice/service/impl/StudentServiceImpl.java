@@ -10,6 +10,7 @@ import ru.psuti.userservice.external.client.FileService;
 import ru.psuti.userservice.mapper.HandlingMapper;
 import ru.psuti.userservice.model.FileInfo;
 import ru.psuti.userservice.model.Handling;
+import ru.psuti.userservice.payload.FileDto;
 import ru.psuti.userservice.payload.LdapResponse;
 import ru.psuti.userservice.payload.ResponseMessage;
 import ru.psuti.userservice.payload.request.RequestFileDelete;
@@ -137,7 +138,7 @@ public class StudentServiceImpl implements StudentService {
 
         log.info("UserServiceImpl | student | deleteHandlingByUd | Calling File Service through FeignClient");
 
-        fileService.deleteFile(token, new RequestFileDelete(
+        fileService.deleteFileById(token, new FileDto(
                 handling.getFile().getPath(),
                 handling.getFile().getName()
         ));

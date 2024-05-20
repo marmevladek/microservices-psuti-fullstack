@@ -2,22 +2,14 @@ package ru.psuti.fileservice.controller;
 
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.MimeTypeUtils;
-import ru.psuti.fileservice.message.ResponseMessage;
-import ru.psuti.fileservice.model.FileInfo;
-import ru.psuti.fileservice.payload.RequestFileDelete;
+import ru.psuti.fileservice.payload.FileDto;
 import ru.psuti.fileservice.payload.RequestUpload;
-import ru.psuti.fileservice.security.JwtUtils;
 import ru.psuti.fileservice.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-
-import java.util.List;
 
 
 @CrossOrigin("*")
@@ -35,45 +27,28 @@ public class FileController {
         fileService.save(file, requestUpload.getPath(), requestUpload.getName());
     }
 
-
-
-    @GetMapping("/") // /files
-    public ResponseEntity<List<FileInfo>> getListFiles() {
-        List<FileInfo> fileInfos = fileService.loadAll()
-                .map(path -> {
-                    String filename = path.getFileName().toString();
-                    String url = MvcUriComponentsBuilder
-                            .fromMethodName(FileController.class, "getFile", path.getFileName().toString())
-                            .build()
-                            .toString();
-
-                    return new FileInfo(filename, url);
-                }).toList();
-
-        return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
-    }
-
-    @GetMapping("/{filename:.+}") //
-    @ResponseBody
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        Resource file = fileService.load(filename);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@RequestParam String path, @RequestParam String name) {
+        return ResponseEntity.ok().body(fileService.downloadFile(path, name));
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseMessage> deleteFileById(@RequestBody RequestFileDelete requestFileDelete) {
+    public void deleteFileById(@RequestBody FileDto fileDto) {
 
         try {
-            boolean existed = fileService.delete(requestFileDelete);
+            boolean existed = fileService.delete(fileDto);
 
             if (existed) {
-                return new ResponseEntity<>(new ResponseMessage("File deleted successfully"), HttpStatus.OK);
+//                return new ResponseEntity<>(new ResponseMessage("File deleted successfully"), HttpStatus.OK);
+                System.out.println("File deleted successfully");
             }
 
-            return new ResponseEntity<>(new ResponseMessage("File not found"), HttpStatus.NOT_FOUND);
+//            return new ResponseEntity<>(new ResponseMessage("File not found"), HttpStatus.NOT_FOUND);
+            System.out.println("File not found");
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponseMessage("Could not delete the file: " + requestFileDelete.getName() + ". Error: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("Could not delete the file");
+//            return new ResponseEntity<>(new ResponseMessage("Could not delete the file: " + fileDto.getName() + ". Error: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

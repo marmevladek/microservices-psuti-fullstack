@@ -29,8 +29,8 @@ public class HandlingMapper {
                 handling.getComment(),
                 handling.getStatus(),
                 handling.getStudentUid(),
-                handling.getTeacherUid()
-//                handling.getFile()
+                handling.getTeacherUid(),
+                handling.getFile()
         );
 
     }

@@ -1,4 +1,4 @@
-package ru.psuti.userservice.payload;
+package ru.psuti.fileservice.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class FileResponse {
-    private String message;
+@AllArgsConstructor
+public class FileDto {
+    private String path;
+    private String name;
 }

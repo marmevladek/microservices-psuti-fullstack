@@ -35,6 +35,6 @@ public class HandlingDto {
 
     private String teacherUid;
 
-//    private FileInfo file;
+    private FileInfo file;
 
 }
