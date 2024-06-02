@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.psuti.fileservice.service.impl.DocumentChecker;
 
 
 @CrossOrigin("*")
@@ -23,7 +24,6 @@ public class FileController {
     @PostMapping(value = "/upload")
     public void uploadFile(@RequestBody RequestUpload requestUpload) {
         MultipartFile file = new MockMultipartFile(requestUpload.getName(), requestUpload.getName(), MimeTypeUtils.APPLICATION_OCTET_STREAM_VALUE, requestUpload.getFileBytes());
-
         fileService.save(file, requestUpload.getPath(), requestUpload.getName());
     }
 

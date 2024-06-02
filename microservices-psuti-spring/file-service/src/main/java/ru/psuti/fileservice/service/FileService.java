@@ -10,7 +10,6 @@ import java.nio.file.Path;
 public interface FileService {
 
     void init(Path root);
-
     ResponseMessage save(MultipartFile file, String path, String name);
 
     Resource downloadFile(String path, String name);
