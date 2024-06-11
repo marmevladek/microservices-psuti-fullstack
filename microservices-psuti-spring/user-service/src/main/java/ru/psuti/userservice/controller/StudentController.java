@@ -34,18 +34,13 @@ public class StudentController {
                                           @RequestHeader("Content-Type") String contentType) {
         try {
             return new ResponseEntity<>(studentService.sendHandling(token, file, uid, contentType), HttpStatus.CREATED);
-        }
-        catch (FileWrongFormatException e) {
+        } catch (FileWrongFormatException e) {
             return new ResponseEntity<>(new MessageResponse("Файл должен иметь формат .docx"), HttpStatus.BAD_REQUEST);
         } catch (UserServiceCustomException e) {
             return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
-        }
-        catch (CallingFileServiceException e) {
+        } catch (CallingFileServiceException e) {
             return new ResponseEntity<>(new MessageResponse("Произошла ошибка при сохранении файла, попробуйте позже"), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (SendHandlingException e) {
-            return new ResponseEntity<>(new MessageResponse("Произошла ошибка при отправке обращения, попробуйте позже: " + e), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

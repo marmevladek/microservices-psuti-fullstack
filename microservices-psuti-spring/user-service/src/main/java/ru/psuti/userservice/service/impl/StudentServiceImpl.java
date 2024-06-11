@@ -38,64 +38,59 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public MessageResponse sendHandling(String token, MultipartFile file, String uid, String contentType) throws IOException {
+        if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".docx")) {
+            throw new FileWrongFormatException("Файл должен иметь формат .docx");
+        }
+
+        log.info("UserServiceImpl | student | sendRequest is called");
+
+        log.info("UserServiceImpl | student | sendRequest | Sending Request");
+
+        log.info("UserServiceImpl | student | sendRequest | Calling Auth Service through FeignClient");
+
+        UserByUidResponse userByUidResponse = getUserByUid(uid);
+        log.info("UserServiceImpl | student | sendRequest | Done calling Auth Service through FeignClient");
+
+        log.info("UserServiceImpl | student | sendRequest | Calling File Service through FeignClient");
+
+        String path = "/files/" + uid + "/";
+        String name = file.getOriginalFilename();
+        byte[] fileBytes = file.getBytes();
         try {
-            if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".docx")) {
-                throw new FileWrongFormatException("Файл должен иметь формат .docx");
-            }
-
-            log.info("UserServiceImpl | student | sendRequest is called");
-
-            log.info("UserServiceImpl | student | sendRequest | Sending Request");
-
-            log.info("UserServiceImpl | student | sendRequest | Calling Auth Service through FeignClient");
-
-            UserByUidResponse userByUidResponse = getUserByUid(uid);
-            log.info("UserServiceImpl | student | sendRequest | Done calling Auth Service through FeignClient");
-
-            log.info("UserServiceImpl | student | sendRequest | Calling File Service through FeignClient");
-
-            String path = "/files/" + uid + "/";
-            String name = file.getOriginalFilename();
-            byte[] fileBytes = file.getBytes();
-            try {
-                fileService.uploadFile(token, new FileRequest(
-                        fileBytes,
-                        path,
-                        name
-                ));
-            } catch (StackOverflowError e) {
-                throw new CallingFileServiceException(e.getMessage());
-            }
-
-            FileInfo fileInfo = new FileInfo(
+            fileService.uploadFile(token, new FileRequest(
+                    fileBytes,
                     path,
                     name
-            );
-
-
-            Handling handling = new Handling(
-                    "test",
-                    userByUidResponse.getCn(),
-                    userByUidResponse.getSn(),
-                    Instant.now(),
-                    null,
-                    "",
-                    null,
-                    uid,
-                    "teacher-uid",
-                    fileInfo
-            );
-
-            fileInfoRepository.save(fileInfo);
-            handlingRepository.save(handling);
-
-
-
-            return new MessageResponse("Ваше обращение отправлено. Историю обращений вы можете посмотреть на верхней панеле в разделе «история».");
+            ));
+        } catch (StackOverflowError e) {
+            throw new CallingFileServiceException(e.getMessage());
         }
-        catch (Exception e) {
-            throw new SendHandlingException(e.getMessage());
-        }
+
+        FileInfo fileInfo = new FileInfo(
+                path,
+                name
+        );
+
+
+        Handling handling = new Handling(
+                "test",
+                userByUidResponse.getCn(),
+                userByUidResponse.getSn(),
+                Instant.now(),
+                null,
+                "",
+                null,
+                uid,
+                "teacher-uid",
+                fileInfo
+        );
+
+        fileInfoRepository.save(fileInfo);
+        handlingRepository.save(handling);
+
+
+
+        return new MessageResponse("Ваше обращение отправлено. Историю обращений вы можете посмотреть на верхней панеле в разделе «история».");
 
 
     }
