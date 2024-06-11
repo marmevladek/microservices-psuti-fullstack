@@ -1,12 +1,14 @@
-package ru.psuti.userservice.payload;
+package ru.psuti.fileservice.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class ResponseMessage {
+public class MessageResponse {
     private String message;
 }

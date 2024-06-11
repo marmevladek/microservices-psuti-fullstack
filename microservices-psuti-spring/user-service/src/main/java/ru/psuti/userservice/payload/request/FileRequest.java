@@ -1,4 +1,4 @@
-package ru.psuti.fileservice.payload;
+package ru.psuti.userservice.payload.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestUpload {
+public class FileRequest {
     private byte[] fileBytes;
     private String path;
     private String name;

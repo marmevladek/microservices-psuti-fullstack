@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-//                                .requestMatchers("/files/upload").hasRole("STUDENT")
+                                .requestMatchers("/files/upload").hasAnyRole("STUDENT", "TEACHER")
+                                .requestMatchers("/files/download").hasAnyRole("STUDENT", "TEACHER")
                                 .anyRequest()
                                 .authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -1,9 +1,8 @@
 package ru.psuti.fileservice.service.impl;
 
 import lombok.extern.log4j.Log4j2;
-import ru.psuti.fileservice.message.ResponseMessage;
-import ru.psuti.fileservice.payload.FileDto;
-import ru.psuti.fileservice.payload.ResponseDocumentChecker;
+import ru.psuti.fileservice.dto.FileDto;
+import ru.psuti.fileservice.exception.FileAlreadyExistsException;
 import ru.psuti.fileservice.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -12,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,31 +27,30 @@ public class FileServiceImpl implements FileService {
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
-            throw new RuntimeException("Could not initialize filesystem");
+            throw new RuntimeException("Не удалось инитиацизировать файловую систему.");
         }
     }
 
+
     @Override
-    public ResponseMessage save(MultipartFile file, String path, String name) {
+    public void save(MultipartFile file, String path, String name) {
         try {
             Path tempDir = Files.createTempDirectory("temp_dir");
             Path tempFile = tempDir.resolve(file.getOriginalFilename());
             Files.write(tempFile, file.getBytes());
 
 
-            ResponseDocumentChecker checkerResult = DocumentChecker.checkAndCorrectDocument(tempFile.toString());
+            DocumentChecker.checkAndCorrectDocument(tempFile.toString());
 
             Path newRoot = Path.of(this.root + path);
             init(newRoot);
 
-            Files.copy(Paths.get(checkerResult.getTempFile()), newRoot.resolve(Objects.requireNonNull(name)));
+            Files.copy(Paths.get(tempFile.toString()), newRoot.resolve(Objects.requireNonNull(name)));
         } catch (IOException e) {
-            if (e instanceof FileAlreadyExistsException) {
-                throw new RuntimeException("File already exists");
-            }
+            throw new FileAlreadyExistsException(e.getMessage());
         }
 
-        return new ResponseMessage("File saved successfully");
+        log.info("Файл успешно сохранен.");
     }
 
     @Override

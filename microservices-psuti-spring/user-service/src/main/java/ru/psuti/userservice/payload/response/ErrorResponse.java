@@ -1,4 +1,4 @@
-package ru.psuti.userservice.payload;
+package ru.psuti.userservice.payload.response;
 
 import lombok.*;
 

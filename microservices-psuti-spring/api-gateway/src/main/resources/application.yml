@@ -15,6 +15,7 @@ spring:
         - id: USER-SERVICE
           uri: lb://USER-SERVICE
           predicates:
+            - Path=/auth/**
             - Path=/student/**
             - Path=/teacher/**
           filters:
@@ -22,19 +23,6 @@ spring:
               args:
                 name: USER-SERVICE
                 fallbackuri: forward:/userServiceFallBack
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 1
-                redis-rate-limiter.burstCapacity: 1
-        - id: AUTH-SERVICE
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: AUTH-SERVICE
-                fallbackuri: forward:/authServiceFallBack
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 1

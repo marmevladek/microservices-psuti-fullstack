@@ -3,15 +3,17 @@ package ru.psuti.userservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.psuti.userservice.payload.ResponseMessage;
+import ru.psuti.userservice.exception.CallingFileServiceException;
+import ru.psuti.userservice.exception.FileWrongFormatException;
+import ru.psuti.userservice.exception.SendHandlingException;
+import ru.psuti.userservice.exception.UserServiceCustomException;
 import ru.psuti.userservice.payload.request.RequestHandlingUid;
-import ru.psuti.userservice.payload.response.ResponseHandling;
+import ru.psuti.userservice.payload.response.MessageResponse;
 import ru.psuti.userservice.service.StudentService;
 
-import java.io.IOException;
-import java.util.List;
 
 @CrossOrigin("http://localhost:3000/")
 @RestController
@@ -19,25 +21,43 @@ import java.util.List;
 @RequestMapping("/student")
 public class StudentController {
 
+    private static final String DEFAULT_ERROR_MESSAGE_RESPONSE = "Произошла техническая ошибка. Попробуйте снова.";
+
     private final StudentService studentService;
 
+
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @PostMapping("/main")
-    public ResponseEntity<ResponseMessage> sendHandling(@RequestHeader("Authorization") String token,
-                                                        @RequestParam("file") MultipartFile file,
-                                                        @RequestParam("uid") String uid,
-                                                        @RequestHeader("Content-Type") String contentType) throws IOException {
-        return new ResponseEntity<>(studentService.sendHandling(token, file, uid, contentType), HttpStatus.CREATED);
+    public ResponseEntity<?> sendHandling(@RequestHeader("Authorization") String token,
+                                          @RequestParam("file") MultipartFile file,
+                                          @RequestParam("uid") String uid,
+                                          @RequestHeader("Content-Type") String contentType) {
+        try {
+            return new ResponseEntity<>(studentService.sendHandling(token, file, uid, contentType), HttpStatus.CREATED);
+        }
+        catch (FileWrongFormatException e) {
+            return new ResponseEntity<>(new MessageResponse("Файл должен иметь формат .docx"), HttpStatus.BAD_REQUEST);
+        } catch (UserServiceCustomException e) {
+            return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        catch (CallingFileServiceException e) {
+            return new ResponseEntity<>(new MessageResponse("Произошла ошибка при сохранении файла, попробуйте позже"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (SendHandlingException e) {
+            return new ResponseEntity<>(new MessageResponse("Произошла ошибка при отправке обращения, попробуйте позже: " + e), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @GetMapping("/history")
-    public ResponseEntity<List<ResponseHandling>> getHandlingHistory(@RequestBody RequestHandlingUid requestHandlingUid) throws IOException {
-        return new ResponseEntity<>(studentService.getHandlingHistory(requestHandlingUid.getUid()), HttpStatus.OK);
-    }
+    public ResponseEntity<?> getHandlingHistory(@RequestBody RequestHandlingUid requestHandlingUid) {
+        try {
+            return new ResponseEntity<>(studentService.getHandlingHistory(requestHandlingUid.getUid()), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-    @DeleteMapping("/history/delete/{id}")
-    public ResponseEntity<ResponseMessage> deleteHandlingById(@RequestHeader("Authorization") String token,
-                                                              @PathVariable("id") Long id) throws IOException {
-        studentService.deleteHandlingById(token, id);
-        return new ResponseEntity<>(new ResponseMessage("Deleted Successfully!"), HttpStatus.OK);
     }
 }

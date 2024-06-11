@@ -18,7 +18,7 @@ public class GatewayConfig {
         return builder.routes()
                 .route("USER-SERVICE", r -> r.path("/student/**").filters(f -> f.filter(filter)).uri("lb://USER-SERVICE"))
                 .route("USER-SERVICE", r -> r.path("/teachers/**").filters(f -> f.filter(filter)).uri("lb://USER-SERVICE"))
-                .route("AUTH-SERVICE", r -> r.path("/auth/**").filters(f -> f.filter(filter)).uri("lb://AUTH-SERVICE"))
+                .route("USER-SERVICE", r -> r.path("/auth/**").filters(f -> f.filter(filter)).uri("lb://USER-SERVICE"))
                 .route("FILE-SERVICE", r -> r.path("/files/**").filters(f -> f.filter(filter)).uri("lb://FILE-SERVICE"))
                 .build();
     }

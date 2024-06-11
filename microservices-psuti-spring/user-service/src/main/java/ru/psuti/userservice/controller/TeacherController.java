@@ -3,15 +3,15 @@ package ru.psuti.userservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.psuti.userservice.payload.HandlingDto;
-import ru.psuti.userservice.payload.ResponseMessage;
-import ru.psuti.userservice.payload.response.ResponseHandling;
+import ru.psuti.userservice.exception.CallingFileServiceException;
+import ru.psuti.userservice.exception.HandlingNotFoundException;
+import ru.psuti.userservice.exception.UserServiceCustomException;
+import ru.psuti.userservice.payload.response.MessageResponse;
 import ru.psuti.userservice.service.TeacherService;
 
-import java.io.IOException;
-import java.util.List;
 
 @CrossOrigin("http://localhost:3000/")
 @RestController
@@ -19,25 +19,51 @@ import java.util.List;
 @RequestMapping("/teacher")
 public class TeacherController {
 
+    private static final String DEFAULT_ERROR_MESSAGE_RESPONSE = "Произошла техническая ошибка. Попробуйте снова.";
+
     private final TeacherService teacherService;
 
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @GetMapping("/main")
-    public ResponseEntity<List<ResponseHandling>> getMainTeacher() {
-        return new ResponseEntity<>(teacherService.getHandlingList(), HttpStatus.OK);
+    public ResponseEntity<?> getMainTeacher() {
+        try {
+            return new ResponseEntity<>(teacherService.getHandlingList(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @GetMapping("/handling/{id}")
-    public ResponseEntity<HandlingDto> getHandlingById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(teacherService.getHandlingById(id), HttpStatus.OK);
+    public ResponseEntity<?> getHandlingById(@PathVariable("id") Long id) {
+        try {
+            return new ResponseEntity<>(teacherService.getHandlingById(id), HttpStatus.OK);
+        } catch (HandlingNotFoundException e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @PutMapping("/handling/{id}")
-    public ResponseEntity<ResponseMessage> updateHandling(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> updateHandling(@RequestHeader("Authorization") String token,
                                                           @PathVariable("id") Long id,
                                                           @RequestParam("file") MultipartFile file,
                                                           @RequestParam("comment") String comment,
-                                                          @RequestParam("status") Boolean status) throws IOException {
-        return new ResponseEntity<>(teacherService.updateHandling(token, id, file, comment, status), HttpStatus.OK);
+                                                          @RequestParam("status") Boolean status) {
+        try {
+            return new ResponseEntity<>(teacherService.updateHandling(token, id, file, comment, status), HttpStatus.OK);
+        } catch (UserServiceCustomException e) {
+            return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
+        } catch (CallingFileServiceException e) {
+            return new ResponseEntity<>(new MessageResponse("Произошла ошибка при сохранении файла, попробуйте позже."), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 

@@ -6,13 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.psuti.userservice.model.FileInfo;
 
-import java.time.Instant;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseHandling {
+public class HandlingResponse {
     private Long id;
     private String studentGroup;
 

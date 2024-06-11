@@ -2,20 +2,19 @@ package ru.psuti.userservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.psuti.userservice.exception.UserServiceCustomException;
-import ru.psuti.userservice.external.client.AuthService;
+import ru.psuti.userservice.exception.*;
 import ru.psuti.userservice.external.client.FileService;
 import ru.psuti.userservice.mapper.HandlingMapper;
 import ru.psuti.userservice.model.FileInfo;
 import ru.psuti.userservice.model.Handling;
-import ru.psuti.userservice.payload.FileDto;
-import ru.psuti.userservice.payload.LdapResponse;
-import ru.psuti.userservice.payload.ResponseMessage;
-import ru.psuti.userservice.payload.request.RequestFileDelete;
-import ru.psuti.userservice.payload.request.RequestHandling;
-import ru.psuti.userservice.payload.response.ResponseHandling;
+import ru.psuti.userservice.payload.request.FileRequest;
+import ru.psuti.userservice.payload.response.HandlingResponse;
+import ru.psuti.userservice.payload.response.MessageResponse;
+import ru.psuti.userservice.payload.response.UserByUidResponse;
 import ru.psuti.userservice.repository.FileInfoRepository;
 import ru.psuti.userservice.repository.HandlingRepository;
 import ru.psuti.userservice.service.StudentService;
@@ -23,8 +22,7 @@ import ru.psuti.userservice.service.StudentService;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -34,71 +32,76 @@ public class StudentServiceImpl implements StudentService {
     private final HandlingRepository handlingRepository;
     private final FileInfoRepository fileInfoRepository;
     private final FileService fileService;
-    private final AuthService authService;
+    private final LdapTemplate ldapTemplate;
+
+    private static final String BASE_DN = "ou=users,ou=system";
 
     @Override
-    public ResponseMessage sendHandling(String token, MultipartFile file, String uid, String contentType) throws IOException {
-        log.info("UserServiceImpl | student | sendRequest is called");
-
-        log.info("UserServiceImpl | student | sendRequest | Sending Request");
-
-        log.info("UserServiceImpl | student | sendRequest | Calling Auth Service through FeignClient");
-
-        LdapResponse ldapResponse = authService.getUserByUid(uid);
-
-        log.info("UserServiceImpl | student | sendRequest | Done calling Auth Service through FeignClient");
-
-        log.info("UserServiceImpl | student | sendRequest | Calling File Service through FeignClient");
-
-
-        String path = "/files/" + uid + "/";
-        String name = file.getOriginalFilename();
-        byte[] fileBytes = file.getBytes();
-
-
+    public MessageResponse sendHandling(String token, MultipartFile file, String uid, String contentType) throws IOException {
         try {
-            fileService.uploadFile(token, new RequestHandling(
-                    fileBytes,
+            if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".docx")) {
+                throw new FileWrongFormatException("Файл должен иметь формат .docx");
+            }
+
+            log.info("UserServiceImpl | student | sendRequest is called");
+
+            log.info("UserServiceImpl | student | sendRequest | Sending Request");
+
+            log.info("UserServiceImpl | student | sendRequest | Calling Auth Service through FeignClient");
+
+            UserByUidResponse userByUidResponse = getUserByUid(uid);
+            log.info("UserServiceImpl | student | sendRequest | Done calling Auth Service through FeignClient");
+
+            log.info("UserServiceImpl | student | sendRequest | Calling File Service through FeignClient");
+
+            String path = "/files/" + uid + "/";
+            String name = file.getOriginalFilename();
+            byte[] fileBytes = file.getBytes();
+            try {
+                fileService.uploadFile(token, new FileRequest(
+                        fileBytes,
+                        path,
+                        name
+                ));
+            } catch (StackOverflowError e) {
+                throw new CallingFileServiceException(e.getMessage());
+            }
+
+            FileInfo fileInfo = new FileInfo(
                     path,
                     name
-            ));
-            log.info("UserServiceImpl | student | sendRequest | Done calling File Service through FeignClient");
-        } catch (StackOverflowError e) {
-            log.error("UserServiceImpl | student | sendRequest | Stack Overflow Error : {}", e.getMessage());
-        } catch (PatternSyntaxException e) {
-            log.error("UserServiceImpl | student | sendRequest | PatternSyntaxException | {}", e.getMessage());
+            );
+
+
+            Handling handling = new Handling(
+                    "test",
+                    userByUidResponse.getCn(),
+                    userByUidResponse.getSn(),
+                    Instant.now(),
+                    null,
+                    "",
+                    null,
+                    uid,
+                    "teacher-uid",
+                    fileInfo
+            );
+
+            fileInfoRepository.save(fileInfo);
+            handlingRepository.save(handling);
+
+
+
+            return new MessageResponse("Ваше обращение отправлено. Историю обращений вы можете посмотреть на верхней панеле в разделе «история».");
+        }
+        catch (Exception e) {
+            throw new SendHandlingException(e.getMessage());
         }
 
-        FileInfo fileInfo = new FileInfo(
-                path,
-                name
-        );
-
-
-        Handling handling = new Handling(
-                "test",
-                ldapResponse.getCn(),
-                ldapResponse.getSn(),
-                Instant.now(),
-                null,
-                "",
-                null,
-                uid,
-                "teacher-uid",
-                fileInfo
-        );
-
-        fileInfoRepository.save(fileInfo);
-        handlingRepository.save(handling);
-
-
-
-        return new ResponseMessage("zbs");
 
     }
 
     @Override
-    public List<ResponseHandling> getHandlingHistory(String uid) {
+    public List<HandlingResponse> getHandlingHistory(String uid) {
         log.info("UserServiceImpl | student | getRequestHistory is called");
 
         log.info("UserServiceImpl | student | getRequestHistory | Sending Request");
@@ -107,45 +110,20 @@ public class StudentServiceImpl implements StudentService {
 
         return handlingList.stream()
                 .map(HandlingMapper::mapToResponseHandling)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    @Override
-    public void deleteHandlingById(String token, Long handlingId) {
+    private UserByUidResponse getUserByUid(String uid) {
+        List<UserByUidResponse>  userDetails = ldapTemplate.search(BASE_DN, "(uid=" + uid + ")",
+                (AttributesMapper<UserByUidResponse>) attr ->
+                    new UserByUidResponse(
+                            attr.get("cn").get().toString(),
+                            attr.get("sn").get().toString()
+                    )
+        );
 
-        log.info("UserServiceImpl | student | deleteHandlingByUd is called");
+        if (!userDetails.isEmpty()) return userDetails.get(0);
 
-        log.info("UserServiceImpl | student | deleteHandlingByUd | Sending Request");
-
-        if (!handlingRepository.existsById(handlingId)) {
-            log.info("Im in this loop {}", !handlingRepository.existsById(handlingId));
-            throw new UserServiceCustomException("Handling with give id: " + handlingId + " not found", "NOT_FOUND", 404);
-        }
-
-        Handling handling = handlingRepository.findById(handlingId)
-                .orElseThrow(
-                        () -> new UserServiceCustomException("Handling with give id: " + handlingId + " not found", "NOT_FOUND", 404)
-                );
-
-        if (!fileInfoRepository.existsById(handling.getFile().getId())) {
-            log.info("Im in this loop {}", !fileInfoRepository.existsById(handling.getFile().getId()));
-            throw new UserServiceCustomException("File from handling with give id: " + handlingId + " not found", "NOT_FOUND", 404);
-        }
-
-
-
-
-
-        log.info("UserServiceImpl | student | deleteHandlingByUd | Calling File Service through FeignClient");
-
-        fileService.deleteFileById(token, new FileDto(
-                handling.getFile().getPath(),
-                handling.getFile().getName()
-        ));
-
-        log.info("UserServiceImpl | student | deleteHandlingByUd | Done Calling File Service through FeignClient");
-
-        handlingRepository.deleteById(handlingId);
-        fileInfoRepository.deleteById(handling.getFile().getId());
+        throw new UserNotFoundException("Пользователь с uid=" + uid + " не найден");
     }
 }

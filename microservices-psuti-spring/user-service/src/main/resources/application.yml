@@ -15,6 +15,9 @@ spring:
     multipart:
       max-request-size: 50MB
       max-file-size: 50MB
+  ldap:
+    username: cn=admin,dc=example,dc=com
+    password: adminPassword
 
 eureka:
   instance:
@@ -40,3 +43,4 @@ resilience4j:
 
 security:
   jwt-secret: uQZ4Ywv3Pb9LnRc8KsGm2FhTjXnZr5xVp1DqAeSg8Bw3VyFm5Kd9Kj2Nn8YhRd5
+  jwt-expire-ms: 86400000

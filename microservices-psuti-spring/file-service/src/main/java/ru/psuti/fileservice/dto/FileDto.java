@@ -1,4 +1,4 @@
-package ru.psuti.userservice.payload.request;
+package ru.psuti.fileservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,10 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class RequestHandling {
-    private byte[] fileBytes;
+@AllArgsConstructor
+public class FileDto {
     private String path;
     private String name;
 }

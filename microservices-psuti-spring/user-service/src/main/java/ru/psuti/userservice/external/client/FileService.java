@@ -4,18 +4,21 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import ru.psuti.userservice.exception.UserServiceCustomException;
-import ru.psuti.userservice.payload.FileDto;
-import ru.psuti.userservice.payload.request.RequestHandling;
-
+import ru.psuti.userservice.dto.FileDto;
+import ru.psuti.userservice.payload.request.FileRequest;
 
 
 @CircuitBreaker(name = "external", fallbackMethod = "fallback")
 @FeignClient(name = "FILE-SERVICE/files")
 public interface FileService {
 
+//    @PostMapping(value = "/upload")
+//    void uploadFile(@RequestHeader("Authorization") String token,
+//                    @RequestBody RequestHandling requestUpload);
+
     @PostMapping(value = "/upload")
     void uploadFile(@RequestHeader("Authorization") String token,
-                    @RequestBody RequestHandling requestUpload);
+                                               @RequestBody FileRequest fileRequest);
 
     @GetMapping(value = "/files")
     FileDto getListFiles(@RequestBody FileDto fileDto);
@@ -30,6 +33,6 @@ public interface FileService {
                                           @RequestParam("name") String name);
 
     default void fallback(Exception e) {
-        throw new UserServiceCustomException("File Service is not available", "UNAVAILABLE", 500);
+        throw new UserServiceCustomException("Файловый сервис временно недоступен, попробуйте позже.", "UNAVAILABLE", 500);
     }
 }

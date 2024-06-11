@@ -1,13 +1,10 @@
-package ru.psuti.userservice.payload;
+package ru.psuti.userservice.dto;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.psuti.userservice.model.FileInfo;
-
-import java.time.Instant;
 
 @Getter
 @Setter

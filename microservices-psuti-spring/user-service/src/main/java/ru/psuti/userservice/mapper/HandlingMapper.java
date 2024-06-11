@@ -1,13 +1,13 @@
 package ru.psuti.userservice.mapper;
 
 import ru.psuti.userservice.model.Handling;
-import ru.psuti.userservice.payload.HandlingDto;
-import ru.psuti.userservice.payload.response.ResponseHandling;
+import ru.psuti.userservice.dto.HandlingDto;
+import ru.psuti.userservice.payload.response.HandlingResponse;
 
 public class HandlingMapper {
 
-    public static ResponseHandling mapToResponseHandling(Handling handling) {
-        return new ResponseHandling(
+    public static HandlingResponse mapToResponseHandling(Handling handling) {
+        return new HandlingResponse(
                 handling.getId(),
                 handling.getStudentGroup(),
                 handling.getStudentName(),

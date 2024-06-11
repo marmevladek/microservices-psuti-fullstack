@@ -1,4 +1,4 @@
-package ru.psuti.userservice.security;
+package ru.psuti.userservice.security.jwt;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,10 +13,8 @@ import java.io.IOException;
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        System.out.println("JWT Access Denied");
-
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.getOutputStream().println("{ \"error\": \"" + accessDeniedException.getMessage() + "\" }");
+        response.getOutputStream().println("{\"error\": \"" + accessDeniedException.getMessage() + "\"}");
     }
 }

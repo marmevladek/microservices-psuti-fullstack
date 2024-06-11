@@ -1,23 +1,21 @@
 package ru.psuti.fileservice.service.impl;
 
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
-import ru.psuti.fileservice.payload.ResponseDocumentChecker;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
+
+@Log4j2
 public class DocumentChecker {
 
-    protected static ResponseDocumentChecker checkAndCorrectDocument(String tempFile) throws IOException {
-        List<String> checks = new ArrayList<>();
-
+    protected static void checkAndCorrectDocument(String tempFile) throws IOException {
         try (InputStream is = new FileInputStream(tempFile)) {
             XWPFDocument document = new XWPFDocument(is);
 
@@ -29,18 +27,16 @@ public class DocumentChecker {
             checkAndCorrectLists(document);
             checkAndCorrectTables(document);
 
+//            String correctedFilePath = tempFile.replace(".docx", "_corrected.docx");
             try (FileOutputStream os = new FileOutputStream(tempFile)) {
                 document.write(os);
             }
-            return new ResponseDocumentChecker(
-                    tempFile,
-                    checks
-            );
+
+//            return tempFile;
         }
     }
 
     private static void checkAndCorrectHeaders(XWPFDocument document) {
-
         try {
             for (XWPFParagraph paragraph : document.getParagraphs()) {
                 String text = paragraph.getText();
@@ -77,7 +73,7 @@ public class DocumentChecker {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error occurred: " + e.getMessage());
+            log.error("Не удалось проверить/исправить заголовки: {}", e.getMessage());
         }
 
     }
@@ -100,9 +96,8 @@ public class DocumentChecker {
 
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить текст: {}", e.getMessage());
         }
-
     }
 
     private static void checkAndCorrectPageMargins(XWPFDocument document) {
@@ -121,7 +116,7 @@ public class DocumentChecker {
                 paragraph.setSpacingBeforeLines(0);
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить поля страниц: {}", e.getMessage());
         }
     }
 
@@ -138,15 +133,7 @@ public class DocumentChecker {
                     if (ensureEmptyParagraph) {
                         try {
                             if (!paragraph.getText().isEmpty()) {
-                                XWPFParagraph emptyParagraph = document.createParagraph();
-                                emptyParagraph.setAlignment(ParagraphAlignment.BOTH);
-                                emptyParagraph.setSpacingBetween(1.5);
-                                emptyParagraph.setIndentationFirstLine(709);
-                                emptyParagraph.setSpacingAfter(0);
-                                XWPFRun run = emptyParagraph.createRun();
-                                run.setText(" ");
-                                run.setFontSize(14);
-                                run.setFontFamily("Times New Roman");
+                                XWPFParagraph emptyParagraph = createEmptyParagraph(document);
 
                                 document.setParagraph(emptyParagraph, i);
 
@@ -208,7 +195,7 @@ public class DocumentChecker {
                 }
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить рисунки: {}", e.getMessage());
         }
     }
 
@@ -216,44 +203,13 @@ public class DocumentChecker {
         try {
             for (int i = 0; i < document.getBodyElements().size(); i++) {
                 if (i + 1 < document.getBodyElements().size()) {
-                    IBodyElement elementTableHeader = document.getBodyElements().get(i);
-                    IBodyElement elementTable = document.getBodyElements().get(i+1);
+                    IBodyElement elementTable = document.getBodyElements().get(i);
+                    IBodyElement elementEmptyParagraphAfterTable = document.getBodyElements().get(i + 1);
 
                     if (elementTable instanceof XWPFTable table) {
                         if (isFormula(table)) continue;
 
                         if (elementTable.getElementType() == BodyElementType.TABLE) {
-                            if (elementTableHeader instanceof XWPFParagraph paragraphTableHeader) {
-
-                                if (paragraphTableHeader.getText().startsWith("Таблица")) {
-                                    paragraphTableHeader.setSpacingBetween(1.5);
-                                    paragraphTableHeader.setAlignment(ParagraphAlignment.RIGHT);
-                                    paragraphTableHeader.setIndentationFirstLine(0);
-                                    for (XWPFRun run : paragraphTableHeader.getRuns()) {
-                                        run.setFontFamily("Times New Roman");
-                                        run.setFontSize(14);
-                                        run.setBold(false);
-                                        run.setItalic(false);
-                                    }
-
-                                } else {
-                                    XWPFParagraph newParagraph = document.createParagraph();
-                                    newParagraph.setAlignment(ParagraphAlignment.RIGHT);
-                                    newParagraph.setSpacingBetween(1.5);
-                                    newParagraph.setSpacingAfter(0);
-                                    newParagraph.setIndentationFirstLine(0);
-                                    XWPFRun newRun = newParagraph.createRun();
-                                    newRun.setText("Таблица %.%");
-                                    newRun.setFontFamily("Times New Roman");
-                                    newRun.setTextHighlightColor("lightGray");
-                                    newRun.setFontSize(14);
-                                    newRun.setBold(false);
-                                    newRun.setItalic(false);
-
-                                    document.setParagraph(newParagraph, i);
-                                }
-                            }
-
                             for (XWPFTableRow row : table.getRows()) {
                                 for (XWPFTableCell cell : row.getTableCells()) {
                                     for (XWPFParagraph paragraphCell : cell.getParagraphs()) {
@@ -266,13 +222,22 @@ public class DocumentChecker {
                                 }
                             }
                         }
+                        if (elementEmptyParagraphAfterTable instanceof  XWPFParagraph paragraph) {
+                            if (!paragraph.getText().isEmpty()) {
+                                XWPFParagraph emptyParagraph = createEmptyParagraph(document);
+
+                                document.setParagraph(emptyParagraph, i);
+                            }
+                        }
+
                     }
                 }
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить таблицы: {}", e.getMessage());
         }
     }
+
 
     private static void checkAndCorrectCode(XWPFDocument document) {
         try {
@@ -292,7 +257,7 @@ public class DocumentChecker {
                 }
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить код: {}", e.getMessage());
         }
     }
 
@@ -321,10 +286,29 @@ public class DocumentChecker {
                 }
             }
         } catch (Exception e) {
-
+            log.error("Не удалось проверить/исправить списки: {}", e.getMessage());
         }
     }
 
+    private static XWPFParagraph createEmptyParagraph(XWPFDocument document) {
+        try {
+            XWPFParagraph emptyParagraph = document.createParagraph();
+            emptyParagraph.setAlignment(ParagraphAlignment.BOTH);
+            emptyParagraph.setSpacingBetween(1.5);
+            emptyParagraph.setIndentationFirstLine(709);
+            emptyParagraph.setSpacingAfter(0);
+            XWPFRun run = emptyParagraph.createRun();
+            run.setText(" ");
+            run.setFontSize(14);
+            run.setFontFamily("Times New Roman");
+
+            return emptyParagraph;
+        } catch (Exception e) {
+            log.error("Не удалось создать пустой параграф: {}", e.getMessage());
+        }
+
+        return null;
+    }
 
     private static boolean isHeader(XWPFParagraph paragraph) {
         String text = paragraph.getText();
@@ -333,18 +317,6 @@ public class DocumentChecker {
 
     }
 
-    private static boolean isPicture(XWPFParagraph paragraph) {
-        boolean hasImage = false;
-
-        for (XWPFRun run : paragraph.getRuns()) {
-            if (!run.getEmbeddedPictures().isEmpty()) {
-                hasImage = true;
-                break;
-            }
-        }
-
-        return hasImage;
-    }
 
 
     private static boolean isCode(XWPFParagraph paragraph) {

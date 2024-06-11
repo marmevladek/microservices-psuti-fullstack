@@ -1,4 +1,4 @@
-package ru.psuti.userservice.payload;
+package ru.psuti.userservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,9 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class LdapResponse {
-    private String cn;
-    private String sn;
+@AllArgsConstructor
+public class FileDto {
+    private String path;
+    private String name;
 }

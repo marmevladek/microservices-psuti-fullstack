@@ -5,7 +5,7 @@ import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.log4j.Log4j2;
 import ru.psuti.userservice.exception.UserServiceCustomException;
-import ru.psuti.userservice.payload.ErrorResponse;
+import ru.psuti.userservice.payload.response.ErrorResponse;
 
 import java.io.IOException;
 
