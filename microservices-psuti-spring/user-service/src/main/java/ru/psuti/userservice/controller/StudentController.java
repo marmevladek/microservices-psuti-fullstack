@@ -6,10 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.psuti.userservice.exception.CallingFileServiceException;
-import ru.psuti.userservice.exception.FileWrongFormatException;
-import ru.psuti.userservice.exception.SendHandlingException;
-import ru.psuti.userservice.exception.UserServiceCustomException;
+import ru.psuti.userservice.exception.*;
 import ru.psuti.userservice.payload.request.RequestHandlingUid;
 import ru.psuti.userservice.payload.response.MessageResponse;
 import ru.psuti.userservice.service.StudentService;
@@ -36,10 +33,10 @@ public class StudentController {
             return new ResponseEntity<>(studentService.sendHandling(token, file, uid, contentType), HttpStatus.CREATED);
         } catch (FileWrongFormatException e) {
             return new ResponseEntity<>(new MessageResponse("Файл должен иметь формат .docx"), HttpStatus.BAD_REQUEST);
-        } catch (UserServiceCustomException e) {
-            return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (CallingFileServiceException e) {
             return new ResponseEntity<>(new MessageResponse("Произошла ошибка при сохранении файла, попробуйте позже"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (UserServiceCustomException e) {
+            return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -50,6 +47,8 @@ public class StudentController {
     public ResponseEntity<?> getHandlingHistory(@RequestBody RequestHandlingUid requestHandlingUid) {
         try {
             return new ResponseEntity<>(studentService.getHandlingHistory(requestHandlingUid.getUid()), HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(new MessageResponse("Не удалось загрузить историю обращений."), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }

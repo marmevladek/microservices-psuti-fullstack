@@ -33,6 +33,6 @@ public interface FileService {
                                           @RequestParam("name") String name);
 
     default void fallback(Exception e) {
-        throw new UserServiceCustomException("Файловый сервис временно недоступен, попробуйте позже.", "UNAVAILABLE", 500);
+        throw new UserServiceCustomException("Файловый сервис временно недоступен, попробуйте позже.", "SERVICE_UNAVAILABLE", 503);
     }
 }

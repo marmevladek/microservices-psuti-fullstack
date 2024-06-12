@@ -40,7 +40,7 @@ public class TeacherController {
         try {
             return new ResponseEntity<>(teacherService.getHandlingById(id), HttpStatus.OK);
         } catch (HandlingNotFoundException e) {
-            return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new MessageResponse("Обращение не найдено."), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }

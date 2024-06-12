@@ -62,7 +62,9 @@ public class StudentServiceImpl implements StudentService {
                     path,
                     name
             ));
-        } catch (StackOverflowError e) {
+        }  catch (RuntimeException e) {
+            throw new UserServiceCustomException(e.getMessage(), "SERVICE_UNAVAILABLE", 503);
+        }catch (StackOverflowError e) {
             throw new CallingFileServiceException(e.getMessage());
         }
 
@@ -101,7 +103,15 @@ public class StudentServiceImpl implements StudentService {
 
         log.info("UserServiceImpl | student | getRequestHistory | Sending Request");
 
+        List<UserByUidResponse> userDetails = ldapTemplate.search(BASE_DN, "(uid=" + uid + ")",
+                (AttributesMapper<UserByUidResponse>) attr ->
+                    new UserByUidResponse());
+
+        if (userDetails.isEmpty()) throw new UserNotFoundException("Невозможно загрузить историю обращений, так как пользователя с uid=" + uid + " не найдено!");
+
         List<Handling> handlingList = handlingRepository.findAllByStudentUid(uid);
+
+
 
         return handlingList.stream()
                 .map(HandlingMapper::mapToResponseHandling)

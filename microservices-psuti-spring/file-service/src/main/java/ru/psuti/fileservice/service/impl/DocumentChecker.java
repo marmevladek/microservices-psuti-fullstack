@@ -26,13 +26,36 @@ public class DocumentChecker {
             checkAndCorrectPageMargins(document);
             checkAndCorrectLists(document);
             checkAndCorrectTables(document);
+            checkAndCorrectDefaultParagraphs(document);
+            checkAndCorrectTableNumbers(document);
 
-//            String correctedFilePath = tempFile.replace(".docx", "_corrected.docx");
             try (FileOutputStream os = new FileOutputStream(tempFile)) {
                 document.write(os);
             }
 
-//            return tempFile;
+        }
+    }
+
+    private static void checkAndCorrectDefaultParagraphs(XWPFDocument document) {
+        for (XWPFParagraph paragraph : document.getParagraphs()) {
+            if (paragraph.getText().equals("Введение") ||
+                paragraph.getText().equals("Заключение") ||
+                paragraph.getText().equals("Список использованных источников") ||
+                paragraph.getText().equals("Содержание"))
+            {
+                paragraph.setIndentationFirstLine(0);
+                paragraph.setAlignment(ParagraphAlignment.CENTER);
+                paragraph.setSpacingAfter(0);
+                paragraph.setSpacingBetween(1.5);
+
+                for (XWPFRun run : paragraph.getRuns()) {
+                    run.setFontFamily("Times New Roman");
+                    run.setFontSize(16);
+                    run.setBold(true);
+                    run.setItalic(false);
+                }
+
+            }
         }
     }
 
@@ -122,80 +145,69 @@ public class DocumentChecker {
 
     private static void checkAndCorrectPicture(XWPFDocument document) {
         try {
-            boolean applyToNextParagraph = false;
-            boolean ensureEmptyParagraph = false;
-
             for (int i = 0; i < document.getBodyElements().size(); i++) {
-                IBodyElement element = document.getBodyElements().get(i);
+                if (i + 2 < document.getBodyElements().size()) {
+                    IBodyElement elementPicture = document.getBodyElements().get(i);
+                    IBodyElement elementParagraphAfterPicture = document.getBodyElements().get(i + 1);
+                    IBodyElement elementEmptyParagraph = document.getBodyElements().get(i + 2);
 
-                if (element instanceof XWPFParagraph paragraph) {
-
-                    if (ensureEmptyParagraph) {
-                        try {
-                            if (!paragraph.getText().isEmpty()) {
-                                XWPFParagraph emptyParagraph = createEmptyParagraph(document);
-
-                                document.setParagraph(emptyParagraph, i);
-
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Error occurred: " + e.getMessage());
-                        }
-
-                        ensureEmptyParagraph = false;
-                    }
-
-                    if (applyToNextParagraph) {
-                        if (paragraph.getText().startsWith("Рис")) {
-                            paragraph.setSpacingBetween(1.5);
-                            paragraph.setAlignment(ParagraphAlignment.CENTER);
-                            paragraph.setIndentationFirstLine(0);
+                    if (elementPicture instanceof XWPFParagraph paragraph) {
+                        if (isPicture(paragraph)) {
                             for (XWPFRun run : paragraph.getRuns()) {
-                                run.setFontFamily("Times New Roman");
-                                run.setFontSize(14);
-                                run.setBold(false);
-                                run.setItalic(false);
+                                if (!run.getEmbeddedPictures().isEmpty()) {
+                                    if (!isSpacingBetween1_5(paragraph) || !isAlignmentCenter(paragraph) || isIndentation1_25(paragraph)) {
+                                        paragraph.setSpacingBetween(1.5);
+                                        paragraph.setAlignment(ParagraphAlignment.CENTER);
+                                        paragraph.setIndentationFirstLine(0);
+
+                                        break;
+                                    }
+                                }
                             }
-                        } else {
-                            XWPFParagraph newParagraph = document.createParagraph();
-                            newParagraph.setAlignment(ParagraphAlignment.CENTER);
-                            newParagraph.setSpacingBetween(1.5);
-                            newParagraph.setIndentationFirstLine(0);
-                            newParagraph.setSpacingAfter(0);
-                            XWPFRun newRun = newParagraph.createRun();
-                            newRun.setText("Рис. %.% – название рисунка");
-                            newRun.setFontFamily("Times New Roman");
-                            newRun.setTextHighlightColor("lightGray");
-                            newRun.setFontSize(14);
-                            newRun.setBold(false);
-                            newRun.setItalic(false);
 
+                            if (elementParagraphAfterPicture instanceof XWPFParagraph paragraphAfterPicture) {
+                                if (paragraphAfterPicture.getText().startsWith("Рис")) {
+                                    paragraphAfterPicture.setSpacingBetween(1.5);
+                                    paragraphAfterPicture.setAlignment(ParagraphAlignment.CENTER);
+                                    paragraphAfterPicture.setIndentationFirstLine(0);
+                                    for (XWPFRun run : paragraphAfterPicture.getRuns()) {
+                                        run.setFontFamily("Times New Roman");
+                                        run.setFontSize(14);
+                                        run.setBold(false);
+                                        run.setItalic(false);
+                                    }
+                                } else {
+                                    XWPFParagraph newParagraph = document.createParagraph();
+                                    newParagraph.setAlignment(ParagraphAlignment.CENTER);
+                                    newParagraph.setSpacingBetween(1.5);
+                                    newParagraph.setIndentationFirstLine(0);
+                                    newParagraph.setSpacingAfter(0);
+                                    XWPFRun newRun = newParagraph.createRun();
+                                    newRun.setText("Рис. %.% – название рисунка");
+                                    newRun.setFontFamily("Times New Roman");
+                                    newRun.setTextHighlightColor("lightGray");
+                                    newRun.setFontSize(14);
+                                    newRun.setBold(false);
+                                    newRun.setItalic(false);
 
-                            document.setParagraph(newParagraph, i);
+                                    document.setParagraph(newParagraph, i+1);
+                                }
+                            }
+
+                            if (elementEmptyParagraph instanceof XWPFParagraph emptyParagraph) {
+                                if (!emptyParagraph.getText().isEmpty()) {
+                                    XWPFParagraph newEmptyParagraph = createEmptyParagraph(document);
+
+                                    document.setParagraph(newEmptyParagraph, i+2);
+                                }
+                            }
                         }
 
-                        applyToNextParagraph = false;
-                        ensureEmptyParagraph = true;
-                    }
-
-
-                    for (XWPFRun run : paragraph.getRuns()) {
-                        if (!run.getEmbeddedPictures().isEmpty()) {
-                            if (!isSpacingBetween1_5(paragraph) || !isAlignmentCenter(paragraph) || isIndentation1_25(paragraph)) {
-                                paragraph.setSpacingBetween(1.5);
-                                paragraph.setAlignment(ParagraphAlignment.CENTER);
-                                paragraph.setIndentationFirstLine(0);
-
-
-                                break;
-                            }
-                            applyToNextParagraph = true;
-                        }
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Не удалось проверить/исправить рисунки: {}", e.getMessage());
+            log.error("Не удалось проверить/исправить изображения: {}", e.getMessage());
         }
     }
 
@@ -235,6 +247,26 @@ public class DocumentChecker {
             }
         } catch (Exception e) {
             log.error("Не удалось проверить/исправить таблицы: {}", e.getMessage());
+        }
+    }
+
+    private static void checkAndCorrectTableNumbers(XWPFDocument document) {
+        for (XWPFParagraph paragraph : document.getParagraphs()) {
+            if (isTableNumber(paragraph) || isTableNumberContinue(paragraph)) {
+                System.out.println(paragraph.getText());
+
+                paragraph.setAlignment(ParagraphAlignment.RIGHT);
+                paragraph.setSpacingBetween(1.5);
+                paragraph.setSpacingAfter(0);
+                paragraph.setIndentationFirstLine(0);
+
+                for (XWPFRun run : paragraph.getRuns()) {
+                    run.setFontFamily("Times New Roman");
+                    run.setFontSize(14);
+                    run.setBold(false);
+                    run.setItalic(false);
+                }
+            }
         }
     }
 
@@ -315,6 +347,28 @@ public class DocumentChecker {
 
         return text.matches("^\\d+(\\.\\d+)*\\s+.*");
 
+    }
+
+    private static boolean isTableNumber(XWPFParagraph paragraph) {
+        String text = paragraph.getText();
+
+        return text.matches("Таблица \\d+(\\.\\d+)*");
+    }
+
+    private static boolean isTableNumberContinue(XWPFParagraph paragraph) {
+        String text = paragraph.getText();
+
+        return text.matches("Продолжение табл. \\d+(\\.\\d+)*");
+    }
+
+    private static boolean isPicture(XWPFParagraph paragraph) {
+        for (XWPFRun run : paragraph.getRuns()) {
+            if (!run.getEmbeddedPictures().isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
