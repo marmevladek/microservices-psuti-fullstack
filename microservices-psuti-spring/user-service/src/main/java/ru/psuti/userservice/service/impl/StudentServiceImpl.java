@@ -73,17 +73,14 @@ public class StudentServiceImpl implements StudentService {
                 name
         );
 
-
+        Long studentUid = (long) Integer.parseInt(uid);
         Handling handling = new Handling(
-                "test",
-                userByUidResponse.getCn(),
-                userByUidResponse.getSn(),
-                Instant.now(),
-                null,
+                studentUid,
+                7357495674L,
                 "",
                 null,
-                uid,
-                "teacher-uid",
+                Instant.now(),
+                null,
                 fileInfo
         );
 
@@ -98,7 +95,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<HandlingResponse> getHandlingHistory(String uid) {
+    public List<HandlingResponse> getHandlingHistory(Long uid) {
         log.info("UserServiceImpl | student | getRequestHistory is called");
 
         log.info("UserServiceImpl | student | getRequestHistory | Sending Request");
@@ -108,6 +105,7 @@ public class StudentServiceImpl implements StudentService {
                     new UserByUidResponse());
 
         if (userDetails.isEmpty()) throw new UserNotFoundException("Невозможно загрузить историю обращений, так как пользователя с uid=" + uid + " не найдено!");
+
 
         List<Handling> handlingList = handlingRepository.findAllByStudentUid(uid);
 

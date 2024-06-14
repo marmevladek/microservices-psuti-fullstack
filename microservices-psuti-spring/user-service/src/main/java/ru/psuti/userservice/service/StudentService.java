@@ -10,6 +10,6 @@ import java.util.List;
 public interface StudentService {
     MessageResponse sendHandling(String token, MultipartFile file, String uid, String contentType) throws IOException;
 
-    List<HandlingResponse> getHandlingHistory(String uid) throws IOException;
+    List<HandlingResponse> getHandlingHistory(Long uid) throws IOException;
 
 }

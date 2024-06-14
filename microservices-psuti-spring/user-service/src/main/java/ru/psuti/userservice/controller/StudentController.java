@@ -50,6 +50,7 @@ public class StudentController {
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(new MessageResponse("Не удалось загрузить историю обращений."), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

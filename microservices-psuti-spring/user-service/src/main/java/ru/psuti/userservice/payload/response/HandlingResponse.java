@@ -11,19 +11,13 @@ import ru.psuti.userservice.model.FileInfo;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HandlingResponse {
+
     private Long id;
-    private String studentGroup;
-
-    private String studentName;
-
-    private String studentLastName;
-
-//    private Instant departureDate;
-
-//    private Instant dateOfInspection;
-
+    private Long studentUid;
+    private Long teacherUid;
     private String comment;
-
     private Boolean status;
+//    private Instant departureDate;
+//    private Instant dateOfInspection;
     private FileInfo file;
 }

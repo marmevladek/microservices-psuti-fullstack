@@ -9,9 +9,8 @@ public class HandlingMapper {
     public static HandlingResponse mapToResponseHandling(Handling handling) {
         return new HandlingResponse(
                 handling.getId(),
-                handling.getStudentGroup(),
-                handling.getStudentName(),
-                handling.getStudentLastName(),
+                handling.getStudentUid(),
+                handling.getTeacherUid(),
                 handling.getComment(),
                 handling.getStatus(),
                 handling.getFile()
@@ -21,15 +20,12 @@ public class HandlingMapper {
     public static HandlingDto mapToHandlingDto(Handling handling) {
         return new HandlingDto(
                 handling.getId(),
-                handling.getStudentGroup(),
-                handling.getStudentName(),
-                handling.getStudentLastName(),
+                handling.getStudentUid(),
+                handling.getTeacherUid(),
 //                handling.getDepartureDate(),
 //                handling.getDateOfInspection(),
                 handling.getComment(),
                 handling.getStatus(),
-                handling.getStudentUid(),
-                handling.getTeacherUid(),
                 handling.getFile()
         );
 

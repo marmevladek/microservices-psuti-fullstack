@@ -13,25 +13,12 @@ import ru.psuti.userservice.model.FileInfo;
 public class HandlingDto {
 
     private Long id;
-
-    private String studentGroup;
-
-    private String studentName;
-
-    private String studentLastName;
-
-//    private Instant departureDate;
-//
-//    private Instant dateOfInspection;
-
+    private Long studentUid;
+    private Long teacherUid;
     private String comment;
-
     private Boolean status;
-
-    private String studentUid;
-
-    private String teacherUid;
-
+    //    private Instant departureDate;
+    //    private Instant dateOfInspection;
     private FileInfo file;
 
 }

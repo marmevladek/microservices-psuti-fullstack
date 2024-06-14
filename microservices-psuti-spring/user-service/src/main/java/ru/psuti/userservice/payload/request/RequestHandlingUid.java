@@ -10,5 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestHandlingUid {
-    private String uid;
+    private Long uid;
 }
