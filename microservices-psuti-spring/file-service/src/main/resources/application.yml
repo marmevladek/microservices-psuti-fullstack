@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: FILE-SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user-service
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
   servlet:
     multipart:
       max-file-size: 50MB

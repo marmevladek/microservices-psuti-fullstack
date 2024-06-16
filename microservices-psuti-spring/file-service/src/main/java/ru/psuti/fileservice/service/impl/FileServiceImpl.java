@@ -1,8 +1,11 @@
 package ru.psuti.fileservice.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import ru.psuti.fileservice.dto.FileDto;
 import ru.psuti.fileservice.exception.FileAlreadyExistsException;
+import ru.psuti.fileservice.model.req.Requirement;
+import ru.psuti.fileservice.repository.RequirementRepository;
 import ru.psuti.fileservice.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -18,7 +21,11 @@ import java.util.Objects;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
+
+    private final RequirementRepository requirementRepository;
+
     private final Path root = Paths.get(
             "/Users/vladislavtezev/projects/microservices-psuti-fullstack/microservices-psuti-react/public");
 
@@ -39,8 +46,9 @@ public class FileServiceImpl implements FileService {
             Path tempFile = tempDir.resolve(file.getOriginalFilename());
             Files.write(tempFile, file.getBytes());
 
+            Requirement requirement = requirementRepository.findAll().get(0);
 
-            DocumentChecker.checkAndCorrectDocument(tempFile.toString());
+            DocumentChecker.checkAndCorrectDocument(tempFile.toString(), requirement);
 
             Path newRoot = Path.of(this.root + path);
             init(newRoot);

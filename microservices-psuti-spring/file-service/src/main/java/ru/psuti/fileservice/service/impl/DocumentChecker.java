@@ -4,6 +4,7 @@ package ru.psuti.fileservice.service.impl;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+import ru.psuti.fileservice.model.req.Requirement;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,17 +16,19 @@ import java.math.BigInteger;
 @Log4j2
 public class DocumentChecker {
 
-    protected static void checkAndCorrectDocument(String tempFile) throws IOException {
+    protected static void checkAndCorrectDocument(String tempFile, Requirement requirement) throws IOException {
         try (InputStream is = new FileInputStream(tempFile)) {
             XWPFDocument document = new XWPFDocument(is);
 
+
+
             checkAndCorrectHeaders(document);
-            checkAndCorrectBasicText(document);
-            checkAndCorrectCode(document);
-            checkAndCorrectPicture(document);
-            checkAndCorrectPageMargins(document);
-            checkAndCorrectLists(document);
-            checkAndCorrectTables(document);
+            checkAndCorrectBasicText(document, requirement);
+            checkAndCorrectCode(document, requirement);
+            checkAndCorrectPicture(document, requirement);
+            checkAndCorrectPageMargins(document, requirement);
+            checkAndCorrectLists(document, requirement);
+            checkAndCorrectTables(document, requirement);
             checkAndCorrectDefaultParagraphs(document);
             checkAndCorrectTableNumbers(document);
 
@@ -101,7 +104,7 @@ public class DocumentChecker {
 
     }
 
-    private static void checkAndCorrectBasicText(XWPFDocument document) {
+    private static void checkAndCorrectBasicText(XWPFDocument document, Requirement requirement) {
         try {
             for (XWPFParagraph paragraph : document.getParagraphs()) {
                 if (!isHeader(paragraph)) {
@@ -123,7 +126,7 @@ public class DocumentChecker {
         }
     }
 
-    private static void checkAndCorrectPageMargins(XWPFDocument document) {
+    private static void checkAndCorrectPageMargins(XWPFDocument document, Requirement requirement) {
         try {
             CTSectPr sectPr = document.getDocument().getBody().addNewSectPr();
             CTPageMar pageMar = sectPr.addNewPgMar();
@@ -143,7 +146,7 @@ public class DocumentChecker {
         }
     }
 
-    private static void checkAndCorrectPicture(XWPFDocument document) {
+    private static void checkAndCorrectPicture(XWPFDocument document, Requirement requirement) {
         try {
             for (int i = 0; i < document.getBodyElements().size(); i++) {
                 if (i + 2 < document.getBodyElements().size()) {
@@ -211,7 +214,7 @@ public class DocumentChecker {
         }
     }
 
-    private static void checkAndCorrectTables(XWPFDocument document) {
+    private static void checkAndCorrectTables(XWPFDocument document, Requirement requirement) {
         try {
             for (int i = 0; i < document.getBodyElements().size(); i++) {
                 if (i + 1 < document.getBodyElements().size()) {
@@ -253,7 +256,6 @@ public class DocumentChecker {
     private static void checkAndCorrectTableNumbers(XWPFDocument document) {
         for (XWPFParagraph paragraph : document.getParagraphs()) {
             if (isTableNumber(paragraph) || isTableNumberContinue(paragraph)) {
-                System.out.println(paragraph.getText());
 
                 paragraph.setAlignment(ParagraphAlignment.RIGHT);
                 paragraph.setSpacingBetween(1.5);
@@ -271,7 +273,7 @@ public class DocumentChecker {
     }
 
 
-    private static void checkAndCorrectCode(XWPFDocument document) {
+    private static void checkAndCorrectCode(XWPFDocument document, Requirement requirement) {
         try {
             for (XWPFParagraph paragraph : document.getParagraphs()) {
                 if (isCode(paragraph)) {
@@ -294,7 +296,7 @@ public class DocumentChecker {
     }
 
 
-    private static void checkAndCorrectLists(XWPFDocument document) {
+    private static void checkAndCorrectLists(XWPFDocument document, Requirement requirement) {
         try {
             for (XWPFParagraph paragraph : document.getParagraphs()) {
 

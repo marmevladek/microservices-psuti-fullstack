@@ -30,19 +30,4 @@ public class HandlingMapper {
         );
 
     }
-
-//    public static Handling mapToHandling(HandlingDto handlingDto) {
-//        return new Handling(
-//                handlingDto.getStudentGroup(),
-//                handlingDto.getStudentName(),
-//                handlingDto.getStudentLastName(),
-//                handlingDto.getDepartureDate(),
-//                handlingDto.getDateOfInspection(),
-//                handlingDto.getComment(),
-//                handlingDto.getStatus(),
-//                handlingDto.getStudentUid(),
-//                handlingDto.getTeacherUid(),
-//                handlingDto.getFile()
-//        );
-//    }
 }
