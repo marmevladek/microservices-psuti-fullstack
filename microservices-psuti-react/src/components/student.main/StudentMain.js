@@ -1,52 +1,41 @@
-import React, { useState, useEffect } from "react";
-import userService from "../../services/user.service";
-import eventBus from "../../common/EventBus";
+import React, { useState, useEffect, useCallback } from "react";
+import { Helmet } from "react-helmet";
+import { useSelector, useDispatch } from "react-redux";
+import { Link, Navigate } from "react-router-dom";
+import userService from "../../services/student.service";
+import { logout } from "../../actions/auth";
 import "./Style.css";
-// import indexjs from "./index";
 import icon from "../../assets/Icon.svg";
 import icon2 from "../../assets/Icon2.svg";
 import sending from "../../assets/sending.svg";
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
-import { logout } from "../../actions/auth";
 
 const StudentMain = () => {
     const { user: currentUser } = useSelector((state) => state.auth);
-
-    
-
+    const dispatch = useDispatch();
 
     const [currentFile, setCurrentFile] = useState(undefined);
     const [message, setMessage] = useState("");
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [isError, setIsError] = useState(false);
+    const [theme, setTheme] = useState("light");
 
     const selectFile = (event) => {
         setCurrentFile(event.target.files[0]);
-
         setMessage("");
-
     };
 
     const upload = () => {
         userService.sendHandling(currentFile, currentUser.uid)
-        .then((response) => {
-            setMessage(response.data.message);
-            setIsSuccess(true);
-        })
-        .catch((err) => {
-            if (err.response && err.response.data && err.response.data.message) {
-                setMessage(err.response.data.message);
-                       
-            } else {
-                setMessage("Не удается загрузить файл!")
-            }
-            
-            setIsError(true);
-            setCurrentFile(undefined)
-        })
-
+            .then((response) => {
+                setMessage(response.data.message);
+            })
+            .catch((err) => {
+                setMessage(err.response?.data?.message || "Не удается загрузить файл!");
+            });
     };
+
+    const toggleTheme = useCallback((theme) => {
+        setTheme(theme);
+        document.body.className = `theme-${theme}`;
+    }, []);
 
     useEffect(() => {
         const fileInput = document.getElementById("file-upload");
@@ -58,74 +47,43 @@ const StudentMain = () => {
         const errorButton = document.getElementById("error-button");
         const errorText = document.querySelector(".error-text");
 
-        const themeButtonLight = document.querySelector(".theme-button-light");
-        const themeButtonDark = document.querySelector(".theme-button-dark");
-
-        function toggleTheme(theme) {
-            document.body.classList.toggle("theme-light", theme === "light");
-            document.body.classList.toggle("theme-dark", theme === "dark");
-        }
-
-        themeButtonLight.addEventListener("click", () => {
-            toggleTheme("light");
-        });
-
-        themeButtonDark.addEventListener("click", () => {
-            toggleTheme("dark");
-        });
-
-        const fileChangeHandler = (event) => {
+        fileInput.addEventListener("change", (event) => {
             const file = event.target.files[0];
             if (file) {
                 uploadText.textContent = file.name;
                 uploadIcon.style.display = "none";
                 submitButton.style.display = "block";
             }
-        };
+        });
 
-        const submitHandler = () => {
+        submitButton.addEventListener("click", () => {
             submitButton.style.display = "none";
             uploadText.style.display = "none";
             sendingMessage.style.display = "block";
 
             setTimeout(() => {
-
                 sendingMessage.style.display = "none";
-                if (isSuccess) {
-                    successMessage.style.display = "block";
-                }
-                
-                
+                successMessage.style.display = "block";
 
-                // const isError = Math.random() > 0.5;
+                const isError = Math.random() > 0.5;
 
                 if (isError) {
                     errorText.textContent = "";
                     errorButton.style.display = "block";
                 }
             }, 2000);
-        };
+        });
 
-        const errorButtonClickHandler = () => {
-            if (isError) errorButton.style.display = "none";
-            if (isError) errorText.textContent = "";
+        errorButton.addEventListener("click", () => {
+            errorButton.style.display = "none";
+            errorText.textContent = "";
             successMessage.style.display = "none";
             uploadText.style.display = "block";
             uploadText.textContent = "Загрузить работу";
             uploadIcon.style.display = "block";
             fileInput.value = "";
             submitButton.style.display = "none";
-        };
-
-        fileInput.addEventListener("change", fileChangeHandler);
-        submitButton.addEventListener("click", submitHandler);
-        if (isError) errorButton.addEventListener("click", errorButtonClickHandler);
-
-        return () => {
-            fileInput.removeEventListener("change", fileChangeHandler);
-            submitButton.removeEventListener("click", submitHandler);
-            if (isError) errorButton.removeEventListener("click", errorButtonClickHandler);
-        };
+        });
     }, []);
 
     if (!currentUser) {
@@ -138,16 +96,32 @@ const StudentMain = () => {
 
     return (
         <>
+            <Helmet>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap"
+                    rel="stylesheet"
+                />
+            </Helmet>
             <header className="page-header">
                 <nav className="main-nav">
                     <div className="theme-content">
                         <ul className="theme-switcher">
                             <p className="theme">Тема</p>
                             <li>
-                                <button className="theme-button-light active" type="button"></button>
+                                <button
+                                    className={`theme-button-light ${theme === "light" ? "active" : ""}`}
+                                    type="button"
+                                    onClick={() => toggleTheme("light")}
+                                ></button>
                             </li>
                             <li>
-                                <button className="theme-button-dark" type="button"></button>
+                                <button
+                                    className={`theme-button-dark ${theme === "dark" ? "active" : ""}`}
+                                    type="button"
+                                    onClick={() => toggleTheme("dark")}
+                                ></button>
                             </li>
                         </ul>
                     </div>
@@ -156,10 +130,13 @@ const StudentMain = () => {
                             <a href="#">Главная страница</a>
                         </li>
                         <li className="site-navigation-item">
+                            <Link to={`/student/history/19`}>
                             <a href="#">История</a>
+                            </Link>
+                            
                         </li>
                         <li className="site-navigation-item">
-                            <a href="#">Выход</a>
+                            <button onClick={logout}>Выход</button>
                         </li>
                     </ul>
                 </nav>
@@ -188,16 +165,13 @@ const StudentMain = () => {
                             <img src={sending} alt="Загрузка" />
                             <p id="sending">Подождите, мы уже отправляем ваше сообщение</p>
                         </div>
-                        {isSuccess && (
-                            <div id="success" style={{ display: "none" }}>
+                        <div id="success" style={{ display: "none" }}>
                             <img src={icon} alt="Успешная Загрузка" />
                             <p id="success-message">
                                 {message}
                             </p>
-                            </div>
-                        )}
-                        {isError && (
-                            <div className="error-group" style={{ display: "none" }}>
+                        </div>
+                        <div className="error-group" style={{ display: "none" }}>
                             <img src={icon2} alt="Ошибка" />
                             <p className="error-text">
                                 {message}
@@ -211,12 +185,9 @@ const StudentMain = () => {
                                 Назад
                             </button>
                         </div>
-                        )}
-                        
                     </form>
                 </section>
             </main>
-            {/* <script src="index.js"></script> */}
         </>
     );
 }

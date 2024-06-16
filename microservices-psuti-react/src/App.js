@@ -7,7 +7,7 @@ import "./App.css";
 
 
 import Login from "./components/login/Login";
-import Profile from "./components/Profile";
+// import Profile from "./components/Profile";
 
 import { logout } from "./actions/auth";
 import { clearMessage } from "./actions/message";

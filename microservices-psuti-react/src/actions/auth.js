@@ -1,10 +1,11 @@
 import { LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT, SET_MESSAGE } from "./types";
 
-import UserService from "../services/user.service"
+import UserService from "../services/student.service"
+import authService from "../services/auth.service";
 import { type } from "@testing-library/user-event/dist/type";
 
 export const login = (cn, userPassword) => (dispatch) => {
-    return UserService.login(cn, userPassword).then(
+    return authService.login(cn, userPassword).then(
         (data) => {
             dispatch({
                 type: LOGIN_SUCCESS,
@@ -36,7 +37,7 @@ export const login = (cn, userPassword) => (dispatch) => {
 }
 
 export const logout = () => (dispatch) => {
-    UserService.logout();
+    authService.logout();
 
     dispatch({
         type: LOGOUT
