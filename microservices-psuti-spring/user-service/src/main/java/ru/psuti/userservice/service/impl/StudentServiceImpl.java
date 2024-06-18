@@ -21,6 +21,8 @@ import ru.psuti.userservice.service.StudentService;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,7 +81,7 @@ public class StudentServiceImpl implements StudentService {
                 7357495674L,
                 "",
                 null,
-                Instant.now(),
+                LocalDateTime.now(),
                 null,
                 fileInfo
         );

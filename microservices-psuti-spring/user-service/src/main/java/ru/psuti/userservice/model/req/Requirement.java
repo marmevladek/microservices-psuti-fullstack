@@ -17,16 +17,16 @@ public class Requirement {
     private Long id;
 
     @Column(name = "pg_mar_left")
-    private int pgMarLeft;
+    private Integer pgMarLeft;
 
     @Column(name = "pg_mar_right")
-    private int pgMarRight;
+    private Integer pgMarRight;
 
     @Column(name = "pg_mar_top")
-    private int pgMarTop;
+    private Integer pgMarTop;
 
     @Column(name = "pg_mar_bottom")
-    private int pgMarBottom;
+    private Integer pgMarBottom;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "basic_text")

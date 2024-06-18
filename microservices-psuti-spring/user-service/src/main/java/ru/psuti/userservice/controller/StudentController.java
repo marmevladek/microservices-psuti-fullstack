@@ -43,10 +43,10 @@ public class StudentController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")
-    @GetMapping("/history")
-    public ResponseEntity<?> getHandlingHistory(@RequestBody RequestHandlingUid requestHandlingUid) {
+    @GetMapping("/history/{uid}")
+    public ResponseEntity<?> getHandlingHistory(@PathVariable("uid") Long uid) {
         try {
-            return new ResponseEntity<>(studentService.getHandlingHistory(requestHandlingUid.getUid()), HttpStatus.OK);
+            return new ResponseEntity<>(studentService.getHandlingHistory(uid), HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(new MessageResponse("Не удалось загрузить историю обращений."), HttpStatus.NOT_FOUND);
         } catch (Exception e) {

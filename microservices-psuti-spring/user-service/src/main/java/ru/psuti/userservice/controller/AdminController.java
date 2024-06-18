@@ -17,7 +17,7 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/update-requirement/{id}")
     public ResponseEntity<?> updateRequirementTest(@PathVariable("id") Long id, @RequestBody RequirementDto requirementDto) {
         try {

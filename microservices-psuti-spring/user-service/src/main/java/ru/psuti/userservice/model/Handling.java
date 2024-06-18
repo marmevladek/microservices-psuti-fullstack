@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "handlings")
@@ -31,10 +33,10 @@ public class Handling {
     private Boolean status;
 
     @Column(name = "departure_date")
-    private Instant departureDate;
+    private LocalDateTime departureDate;
 
     @Column(name = "date_of_inspection")
-    private Instant dateOfInspection;
+    private LocalDateTime dateOfInspection;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -45,8 +47,8 @@ public class Handling {
                     Long teacherUid,
                     String comment,
                     Boolean status,
-                    Instant departureDate,
-                    Instant dateOfInspection,
+                    LocalDateTime departureDate,
+                    LocalDateTime dateOfInspection,
                     FileInfo file) {
         this.studentUid = studentUid;
         this.teacherUid = teacherUid;

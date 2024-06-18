@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.psuti.userservice.model.FileInfo;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +21,9 @@ public class HandlingResponse {
     private Long teacherUid;
     private String comment;
     private Boolean status;
-//    private Instant departureDate;
-//    private Instant dateOfInspection;
+    private String departureDate;
+    private String departureTime;
+    private String inspectionDate;
+    private String inspectionTime;
     private FileInfo file;
 }
