@@ -1,6 +1,6 @@
   .doc-button {
     display: block;
-    width: 100px;
+    /* width: 100px; */
     height: 100px;
     padding: 0;
     background-position: center;
@@ -8,7 +8,8 @@
     background-color: transparent;
     background-image: url("../../assets/word.svg");
     border: none;
-    /* border-radius: 50%; */
+
+
     cursor: pointer;
   }
   
@@ -261,7 +262,7 @@
   textarea:focus {
     border: 1px solid rgba(217, 217, 217, 1);
     background: none repeat scroll 0 0 #ffffff;
-    outline-width: 0;
+    /* outline-width: 0; */
   }
   
   .submit-container {

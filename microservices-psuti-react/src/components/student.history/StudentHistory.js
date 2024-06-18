@@ -113,7 +113,7 @@ const StudentHistory = () => {
                 <td>{handling.departureDate}<br/>{handling.departureTime}</td>
                 <td>-</td>
                 <td>{handling.comment}</td>
-                <td>Не принято</td>
+                <td>Отклонено</td>
                 </tr>
             ) : (
                 <>
