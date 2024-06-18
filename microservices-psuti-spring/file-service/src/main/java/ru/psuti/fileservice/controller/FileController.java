@@ -1,11 +1,13 @@
 package ru.psuti.fileservice.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MimeTypeUtils;
 import ru.psuti.fileservice.dto.FileDto;
 import ru.psuti.fileservice.exception.FileAlreadyExistsException;
 import ru.psuti.fileservice.payload.request.FileRequest;
+import ru.psuti.fileservice.payload.response.MessageResponse;
 import ru.psuti.fileservice.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -15,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 
-@CrossOrigin("http://localhost:3000/")
+@CrossOrigin("http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/files")
@@ -35,10 +37,11 @@ public class FileController {
         }
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_STUDENT', 'ROLE_TEACHER')")
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String path, @RequestParam String name) {
-        return ResponseEntity.ok().body(fileService.downloadFile(path, name));
+    public ResponseEntity<Resource> getFile(@RequestParam String path, @RequestParam String name) {
+        Resource file = fileService.load(path, name);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
     @DeleteMapping("/delete")

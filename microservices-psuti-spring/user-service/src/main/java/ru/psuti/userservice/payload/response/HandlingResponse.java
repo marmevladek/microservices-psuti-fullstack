@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.psuti.userservice.model.FileInfo;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter

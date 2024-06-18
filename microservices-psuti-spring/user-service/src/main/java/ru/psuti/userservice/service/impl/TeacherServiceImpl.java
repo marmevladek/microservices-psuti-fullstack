@@ -39,24 +39,15 @@ public class TeacherServiceImpl implements TeacherService {
     private static final String BASE_DN = "ou=users,ou=system";
 
     @Override
-    public List<HandlingResponse> getHandlingList() {
+    public List<HandlingResponse> getHandlingList(Long teacherUid) {
 
-        List<Handling> handlingList = handlingRepository.findAll();
+        List<Handling> handlingList = handlingRepository.findAllByTeacherUid(teacherUid);
+
 
         return handlingList.stream()
                 .map(HandlingMapper::mapToResponseHandling)
                 .collect(Collectors.toList());
     }
-
-//    @Override
-//    public HandlingDto getHandlingById(Long id) {
-//        Handling handling = handlingRepository.findById(id)
-//                .orElseThrow(
-//                        () -> new HandlingNotFoundException("Обращение с id=" + id + " не найдено!")
-//                );
-//
-//        return HandlingMapper.mapToHandlingDto(handling);
-//    }
 
     @Override
     public HandlingByIdResponse getHandlingById(Long id) {
@@ -88,7 +79,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public MessageResponse updateHandling(String token, Long id, MultipartFile file, String comment, Boolean status) throws IOException {
+    public MessageResponse updateHandling(String token, Long id, /*MultipartFile file,*/ String comment, Boolean status) throws IOException {
         Handling handling = handlingRepository.findById(id)
                 .orElseThrow(
                         () -> new HandlingNotFoundException("Обращение с id=" + id + " не найдено!")
@@ -101,26 +92,26 @@ public class TeacherServiceImpl implements TeacherService {
         handling.setStatus(status);
         handling.setDateOfInspection(LocalDateTime.now());
 
-        byte[] fileBytes = file.getBytes();
-
-        try {
-            fileService.deleteFileById(token, new FileDto(
-                    path,
-                    name
-            ));
-
-            fileService.uploadFile(token, new FileRequest(
-                    fileBytes,
-                    path,
-                    "upd_" + file.getOriginalFilename()
-            ));
-        } catch (Exception e) {
-            throw new CallingFileServiceException(e.getMessage());
-        }
-
-
-        handling.getFile().setName("upd_"+file.getOriginalFilename());
-        log.info("upload file done");
+//        byte[] fileBytes = file.getBytes();
+//
+//        try {
+//            fileService.deleteFileById(token, new FileDto(
+//                    path,
+//                    name
+//            ));
+//
+//            fileService.uploadFile(token, new FileRequest(
+//                    fileBytes,
+//                    path,
+//                    "upd_" + file.getOriginalFilename()
+//            ));
+//        } catch (Exception e) {
+//            throw new CallingFileServiceException(e.getMessage());
+//        }
+//
+//
+//        handling.getFile().setName("upd_"+file.getOriginalFilename());
+//        log.info("upload file done");
         handlingRepository.save(handling);
 
         return new MessageResponse("File is deleted successfully!");

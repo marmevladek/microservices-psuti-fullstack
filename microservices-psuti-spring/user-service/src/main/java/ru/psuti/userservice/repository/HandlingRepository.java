@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface HandlingRepository extends JpaRepository<Handling, Long> {
     List<Handling> findAllByStudentUid(Long studentUid);
+    List<Handling> findAllByTeacherUid(Long teacherUid);
     List<Handling> findByStatus(Boolean status);
 }

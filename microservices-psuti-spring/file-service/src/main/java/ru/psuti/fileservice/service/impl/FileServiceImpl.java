@@ -62,11 +62,18 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Resource downloadFile(String path, String name) {
+    public Resource load(String path, String name) {
         try {
-            Path file = Paths.get(this.root + path);
+            Path newRoot = Path.of(this.root + path);
 
-            return new UrlResource(file.toUri());
+            Path file = newRoot.resolve(name);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Не удалось прочитать файл!");
+            }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Error occurred: " + e.getMessage());
         }

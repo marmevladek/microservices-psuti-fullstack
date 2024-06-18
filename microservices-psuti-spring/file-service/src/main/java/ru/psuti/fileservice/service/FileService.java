@@ -12,7 +12,7 @@ public interface FileService {
 
     void save(MultipartFile file, String path, String name);
 
-    Resource downloadFile(String path, String name);
+    Resource load(String path, String name);
 
     boolean delete(FileDto fileDto);
 

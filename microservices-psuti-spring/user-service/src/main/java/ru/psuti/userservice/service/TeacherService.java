@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface TeacherService {
-    List<HandlingResponse> getHandlingList();
+    List<HandlingResponse> getHandlingList(Long teacherUid);
 
-    /*HandlingDto*/HandlingByIdResponse getHandlingById(Long id);
+    HandlingByIdResponse getHandlingById(Long id);
 
-    MessageResponse updateHandling(String token, Long id, MultipartFile file, String comment, Boolean status) throws IOException;
+    MessageResponse updateHandling(String token, Long id, /*MultipartFile file,*/ String comment, Boolean status) throws IOException;
 }

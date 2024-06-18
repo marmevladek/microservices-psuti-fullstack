@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/files/upload").hasAnyRole("STUDENT", "TEACHER")
-                                .requestMatchers("/files/download").hasAnyRole("STUDENT", "TEACHER")
+//                                .requestMatchers("/files/download").hasAnyRole("STUDENT", "TEACHER")
                                 .anyRequest()
                                 .authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)

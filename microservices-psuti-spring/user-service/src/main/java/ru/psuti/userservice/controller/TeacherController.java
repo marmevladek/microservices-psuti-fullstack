@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.psuti.userservice.exception.CallingFileServiceException;
 import ru.psuti.userservice.exception.HandlingNotFoundException;
 import ru.psuti.userservice.exception.UserServiceCustomException;
+import ru.psuti.userservice.payload.request.UpdateHandlingRequest;
 import ru.psuti.userservice.payload.response.MessageResponse;
 import ru.psuti.userservice.service.TeacherService;
 
@@ -24,10 +25,10 @@ public class TeacherController {
     private final TeacherService teacherService;
 
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
-    @GetMapping("/main")
-    public ResponseEntity<?> getMainTeacher() {
+    @GetMapping("/main/{uid}")
+    public ResponseEntity<?> getMainTeacher(@PathVariable("uid") Long uid) {
         try {
-            return new ResponseEntity<>(teacherService.getHandlingList(), HttpStatus.OK);
+            return new ResponseEntity<>(teacherService.getHandlingList(uid), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new MessageResponse(DEFAULT_ERROR_MESSAGE_RESPONSE), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -50,12 +51,12 @@ public class TeacherController {
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @PutMapping("/handling/{id}")
     public ResponseEntity<?> updateHandling(@RequestHeader("Authorization") String token,
-                                                          @PathVariable("id") Long id,
-                                                          @RequestParam("file") MultipartFile file,
-                                                          @RequestParam("comment") String comment,
-                                                          @RequestParam("status") Boolean status) {
+                                            @PathVariable("id") Long id, @RequestBody UpdateHandlingRequest updateHandlingRequest
+//                                                          @RequestParam("file") MultipartFile file,
+                                                          /*@RequestParam("comment") String comment,
+                                                          @RequestParam("status") Boolean status*/) {
         try {
-            return new ResponseEntity<>(teacherService.updateHandling(token, id, file, comment, status), HttpStatus.OK);
+            return new ResponseEntity<>(teacherService.updateHandling(token, id, /*file,*/ updateHandlingRequest.getComment(), updateHandlingRequest.getStatus()), HttpStatus.OK);
         } catch (UserServiceCustomException e) {
             return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (CallingFileServiceException e) {
