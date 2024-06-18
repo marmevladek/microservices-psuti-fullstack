@@ -127,12 +127,16 @@ const StudentMain = () => {
                     </div>
                     <ul className="site-navigation">
                         <li className="site-navigation-item">
-                            <a href="#">Главная страница</a>
+                            <Link to={`/student/main`}>
+                                <a href="#">Главная страница</a>
+                            </Link>
+                            
                         </li>
                         <li className="site-navigation-item">
-                            <Link to={`/student/history/19`}>
+                            <Link to={`/student/history`}>
                             <a href="#">История</a>
                             </Link>
+                            
                             
                         </li>
                         <li className="site-navigation-item">

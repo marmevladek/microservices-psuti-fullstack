@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet";
 import { useSelector, useDispatch } from "react-redux";
-import { Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import userService from "../../services/student.service";
 import { logout } from "../../actions/auth";
 import "./Style.css";
@@ -19,6 +19,7 @@ const StudentHistory = () => {
 
     const [history, setHistory] = useState("")
     const [message, setMessage] = useState("")
+    // const [uid, setUid] = useState("")
     const {id} = useParams()
 
     const statusHandling = (status) => {
@@ -34,7 +35,7 @@ const StudentHistory = () => {
 
     // ?
     useEffect(() => {
-        userService.getHandlingHistory(id)
+        userService.getHandlingHistory(currentUser.uid)
         .then(response => {
             setHistory(response.data)
         })
@@ -60,9 +61,14 @@ const StudentHistory = () => {
           </ul>
         </div>
         <ul className="site-navigation">
+            
+            
           <li className="site-navigation-item">
-            <a href="#">Главная страница</a>
+            <Link to={`/student/main`}>
+                <a href="#">Главная страница</a>
+            </Link>
           </li>
+          
           <li className="site-navigation-item">
             <a href="#">История</a>
           </li>
