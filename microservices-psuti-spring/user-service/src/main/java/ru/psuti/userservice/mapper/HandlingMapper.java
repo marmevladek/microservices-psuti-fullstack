@@ -31,8 +31,6 @@ public class HandlingMapper {
                 handling.getId(),
                 handling.getStudentUid(),
                 handling.getTeacherUid(),
-//                handling.getDepartureDate(),
-//                handling.getDateOfInspection(),
                 handling.getComment(),
                 handling.getStatus(),
                 handling.getFile()

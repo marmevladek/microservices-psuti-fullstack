@@ -7,7 +7,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.psuti.userservice.exception.*;
-import ru.psuti.userservice.payload.request.RequestHandlingUid;
 import ru.psuti.userservice.payload.response.MessageResponse;
 import ru.psuti.userservice.service.StudentService;
 

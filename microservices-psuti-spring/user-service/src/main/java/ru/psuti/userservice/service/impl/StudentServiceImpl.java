@@ -20,9 +20,7 @@ import ru.psuti.userservice.repository.HandlingRepository;
 import ru.psuti.userservice.service.StudentService;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 

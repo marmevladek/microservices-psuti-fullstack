@@ -12,20 +12,16 @@ import ru.psuti.userservice.external.client.FileService;
 import ru.psuti.userservice.mapper.HandlingMapper;
 import ru.psuti.userservice.model.Handling;
 import ru.psuti.userservice.dto.FileDto;
-import ru.psuti.userservice.dto.HandlingDto;
 import ru.psuti.userservice.payload.request.FileRequest;
-import ru.psuti.userservice.payload.response.HandlingByIdResponse;
-import ru.psuti.userservice.payload.response.HandlingResponse;
-import ru.psuti.userservice.payload.response.MessageResponse;
-import ru.psuti.userservice.payload.response.UserByUidResponse;
+import ru.psuti.userservice.payload.response.*;
 import ru.psuti.userservice.repository.HandlingRepository;
 import ru.psuti.userservice.service.TeacherService;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -39,14 +35,62 @@ public class TeacherServiceImpl implements TeacherService {
     private static final String BASE_DN = "ou=users,ou=system";
 
     @Override
-    public List<HandlingResponse> getHandlingList(Long teacherUid) {
+    public List<HandlingListResponse> getHandlingList(Long teacherUid) {
 
         List<Handling> handlingList = handlingRepository.findAllByTeacherUid(teacherUid);
 
+        List<HandlingListResponse> handlingListResponse = new ArrayList<>();
 
-        return handlingList.stream()
-                .map(HandlingMapper::mapToResponseHandling)
-                .collect(Collectors.toList());
+
+
+        for (int i = 0; i < handlingList.size(); i++) {
+                handlingListResponse.add(i, new HandlingListResponse(
+                        handlingList.get(i).getId(),
+                        handlingList.get(i).getStudentUid(),
+                        handlingList.get(i).getTeacherUid(),
+                        handlingList.get(i).getComment(),
+                        handlingList.get(i).getStatus(),
+                        toDate(handlingList.get(i).getDepartureDate()),
+                        toTime(handlingList.get(i).getDepartureDate()),
+                        toDate(handlingList.get(i).getDateOfInspection()),
+                        toTime(handlingList.get(i).getDateOfInspection()),
+                        handlingList.get(i).getFile(),
+                        findStudent(handlingList.get(i).getStudentUid()).get(0).getSn(),
+                        "ИСТ-01"
+                ));
+
+
+        }
+
+
+        return handlingListResponse;
+    }
+
+    private List<UserByUidResponse> findStudent(Long studentUid) {
+        return ldapTemplate.search(BASE_DN, "(uid=" + studentUid + ")",
+                (AttributesMapper<UserByUidResponse>) user ->
+                        new UserByUidResponse(
+                                user.get("cn").get().toString(),
+                                user.get("sn").get().toString()
+                        )
+        );
+
+    }
+
+    private static String toDate(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        return dateTime.format(dateTimeFormatter);
+    }
+
+    private static String toTime(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        return dateTime.format(dateTimeFormatter);
     }
 
     @Override
@@ -79,7 +123,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public MessageResponse updateHandling(String token, Long id, /*MultipartFile file,*/ String comment, Boolean status) throws IOException {
+    public MessageResponse updateHandling(String token, Long id, MultipartFile file, String comment, Boolean status) throws IOException {
         Handling handling = handlingRepository.findById(id)
                 .orElseThrow(
                         () -> new HandlingNotFoundException("Обращение с id=" + id + " не найдено!")
@@ -92,26 +136,26 @@ public class TeacherServiceImpl implements TeacherService {
         handling.setStatus(status);
         handling.setDateOfInspection(LocalDateTime.now());
 
-//        byte[] fileBytes = file.getBytes();
-//
-//        try {
-//            fileService.deleteFileById(token, new FileDto(
-//                    path,
-//                    name
-//            ));
-//
-//            fileService.uploadFile(token, new FileRequest(
-//                    fileBytes,
-//                    path,
-//                    "upd_" + file.getOriginalFilename()
-//            ));
-//        } catch (Exception e) {
-//            throw new CallingFileServiceException(e.getMessage());
-//        }
-//
-//
-//        handling.getFile().setName("upd_"+file.getOriginalFilename());
-//        log.info("upload file done");
+        byte[] fileBytes = file.getBytes();
+
+        try {
+            fileService.deleteFileById(token, new FileDto(
+                    path,
+                    name
+            ));
+
+            fileService.uploadFile(token, new FileRequest(
+                    fileBytes,
+                    path,
+                    "upd_" + file.getOriginalFilename()
+            ));
+        } catch (Exception e) {
+            throw new CallingFileServiceException(e.getMessage());
+        }
+
+
+        handling.getFile().setName("upd_"+file.getOriginalFilename());
+        log.info("upload file done");
         handlingRepository.save(handling);
 
         return new MessageResponse("File is deleted successfully!");

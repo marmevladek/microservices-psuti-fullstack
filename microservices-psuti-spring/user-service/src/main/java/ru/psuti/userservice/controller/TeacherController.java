@@ -51,12 +51,12 @@ public class TeacherController {
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @PutMapping("/handling/{id}")
     public ResponseEntity<?> updateHandling(@RequestHeader("Authorization") String token,
-                                            @PathVariable("id") Long id, @RequestBody UpdateHandlingRequest updateHandlingRequest
-//                                                          @RequestParam("file") MultipartFile file,
+                                            @PathVariable("id") Long id, @RequestBody UpdateHandlingRequest updateHandlingRequest,
+                                                          @RequestParam("file") MultipartFile file
                                                           /*@RequestParam("comment") String comment,
                                                           @RequestParam("status") Boolean status*/) {
         try {
-            return new ResponseEntity<>(teacherService.updateHandling(token, id, /*file,*/ updateHandlingRequest.getComment(), updateHandlingRequest.getStatus()), HttpStatus.OK);
+            return new ResponseEntity<>(teacherService.updateHandling(token, id, file, updateHandlingRequest.getComment(), updateHandlingRequest.getStatus()), HttpStatus.OK);
         } catch (UserServiceCustomException e) {
             return new ResponseEntity<>(new MessageResponse("Файловый сервис временно недоступен, попробуйте позже"), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (CallingFileServiceException e) {

@@ -2,12 +2,10 @@ package ru.psuti.fileservice.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MimeTypeUtils;
 import ru.psuti.fileservice.dto.FileDto;
 import ru.psuti.fileservice.exception.FileAlreadyExistsException;
 import ru.psuti.fileservice.payload.request.FileRequest;
-import ru.psuti.fileservice.payload.response.MessageResponse;
 import ru.psuti.fileservice.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -25,7 +23,6 @@ public class FileController {
 
     private final FileService fileService;
 
-    @PreAuthorize("hasAnyAuthority('ROLE_STUDENT', 'ROLE_TEACHER')")
     @PostMapping(value = "/upload")
     public void uploadFile(@RequestBody FileRequest fileRequest) {
 

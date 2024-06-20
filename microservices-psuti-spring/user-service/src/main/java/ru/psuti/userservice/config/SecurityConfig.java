@@ -50,10 +50,10 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                .requestMatchers("/auth/login", "/auth/logout").permitAll()
+                                .requestMatchers("/auth/login", "/logout").permitAll()
                                 .requestMatchers("/student/**").hasRole("STUDENT")
                                 .requestMatchers("/teacher/**").hasRole("TEACHER")
-//                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)

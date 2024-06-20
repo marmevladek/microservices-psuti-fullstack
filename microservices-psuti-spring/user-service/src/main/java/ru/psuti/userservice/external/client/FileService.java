@@ -12,10 +12,6 @@ import ru.psuti.userservice.payload.request.FileRequest;
 @FeignClient(name = "FILE-SERVICE/files")
 public interface FileService {
 
-//    @PostMapping(value = "/upload")
-//    void uploadFile(@RequestHeader("Authorization") String token,
-//                    @RequestBody RequestHandling requestUpload);
-
     @PostMapping(value = "/upload")
     void uploadFile(@RequestHeader("Authorization") String token,
                                                @RequestBody FileRequest fileRequest);
