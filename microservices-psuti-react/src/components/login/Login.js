@@ -35,6 +35,7 @@ const Login = (props) => {
   const { isLoggedIn } = useSelector(state => state.auth);
   const { message } = useSelector(state => state.message);
 
+
   const dispatch = useDispatch();
 
   const onChangeUsername = (e) => {
@@ -47,6 +48,8 @@ const Login = (props) => {
     setUserPassword(userPassword);
   };
 
+  
+  const {user: currentUser} = useSelector((state) => state.auth);
   const handleLogin = (e) => {
     e.preventDefault();
 
@@ -57,8 +60,14 @@ const Login = (props) => {
     if (checkBtn.current.context._errors.length === 0) {
       dispatch(login(cn, userPassword))
         .then(() => {
-          navigate("/student/main");
-          window.location.reload();
+          if (currentUser.role.includes("ROLE_STUDENT")) {
+            navigate("/student/main");
+          } else if (currentUser.role.includes("ROLE_TEACHER")) {
+            console.log(currentUser)
+            navigate("/teacher/main")
+          }
+          
+          // window.location.reload();
         })
         .catch(() => {
           setLoading(false);
@@ -69,7 +78,14 @@ const Login = (props) => {
   };
 
   if (isLoggedIn) {
-    return <Navigate to="/student/main" />;
+    if (currentUser.role.includes("ROLE_STUDENT")) {
+
+      return <Navigate to="/student/main" />;
+    } else if (currentUser.role.includes("ROLE_TEACHER")) {
+
+      return <Navigate to="/teacher/main" />
+    }
+    
   }
 
   return (

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Helmet } from "react-helmet";
-import { useSelector, useDispatch } from "react-redux";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import userService from "../../services/student.service";
-import { logout } from "../../actions/auth";
 import "./Style.css";
+import Header from "../Header/Header";
 
 const StudentHistory = () => {
     const {user: currentUser} = useSelector((state) => state.auth)
@@ -19,22 +18,10 @@ const StudentHistory = () => {
 
     const [history, setHistory] = useState("")
     const [message, setMessage] = useState("")
-    // const [uid, setUid] = useState("")
-    const {id} = useParams()
+    
 
-    const statusHandling = (status) => {
-        console.log(status)
-        if (status === null) {
-            return "Не проверено";
-        } else if (status === false) {
-            return "Не принято"
-        } else if (status === true) {
-            return "Принято"
-        }
-    }
-
-    // ?
     useEffect(() => {
+      
         userService.getHandlingHistory(currentUser.uid)
         .then(response => {
             setHistory(response.data)
@@ -43,42 +30,11 @@ const StudentHistory = () => {
             setMessage(err.response?.data?.message || "Не удается загрузить файл!");
         });
     }, [])
-    // ?
 
     return(
         <>
-            <header className="page-header">
-      <nav className="main-nav">
-        <div className="theme-content">
-          <ul className="theme-switcher">
-            <p className="theme">Тема</p>
-            <li>
-              <button className="theme-button-light active" type="button"></button>
-            </li>
-            <li>
-              <button className="theme-button-dark" type="button"></button>
-            </li>
-          </ul>
-        </div>
-        <ul className="site-navigation">
-            
-            
-          <li className="site-navigation-item">
-            <Link to={`/student/main`}>
-                <a href="#">Главная страница</a>
-            </Link>
-          </li>
-          
-          <li className="site-navigation-item">
-            <a href="#">История</a>
-          </li>
-          <li className="site-navigation-item">
-            <a href="#">Выход</a>
-          </li>
-        </ul>
-      </nav>
-    </header>
-    <main className="main-content">
+            <Header />
+    <main className="sh-main-content">
       <table>
         <thead>
           <tr>
@@ -103,7 +59,7 @@ const StudentHistory = () => {
                 <tr className="status-accepted">
                 <td>{handling.file.name}</td>
                 <td>{handling.departureDate}<br/>{handling.departureTime}</td>
-                <td>-</td>
+                <td></td>
                 <td>{handling.comment}</td>
                 <td>Принято</td>
                 </tr>
@@ -111,7 +67,7 @@ const StudentHistory = () => {
                 <tr className="status-not-accepted">
                 <td>{handling.file.name}</td>
                 <td>{handling.departureDate}<br/>{handling.departureTime}</td>
-                <td>-</td>
+                <td>{handling.inspectionDate}<br/>{handling.inspectionTime}</td>
                 <td>{handling.comment}</td>
                 <td>Отклонено</td>
                 </tr>

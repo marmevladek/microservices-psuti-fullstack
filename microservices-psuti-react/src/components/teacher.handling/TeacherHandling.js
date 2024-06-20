@@ -7,7 +7,7 @@ import CheckButton from "react-validation/build/button";
 import teacherService from "../../services/teacher.service";
 import fileService from "../../services/file.service";
 import "./Style.css";
-import { Helmet } from "react-helmet";
+import Header from "../Header/Header";
 
 const TeacherHandling = () => {
     let navigate = useNavigate();
@@ -112,40 +112,7 @@ const TeacherHandling = () => {
 
     return (
         <>
-            <Helmet>
-                <meta charset="utf-8" />
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap"
-                    rel="stylesheet"
-                />
-                <link href="css/style.css" rel="stylesheet" />
-                <title>PGUTI</title>
-            </Helmet>
-            <header className="page-header">
-                <nav className="main-nav">
-                    <div className="theme-content">
-                        <ul className="theme-switcher">
-                            <p className="theme">Тема</p>
-                            <li>
-                                <button className="theme-button-light active" type="button"></button>
-                            </li>
-                            <li>
-                                <button className="theme-button-dark" type="button"></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul className="site-navigation">
-                        <li className="site-navigation-item">
-                            <a href="#">Главная страница</a>
-                        </li>
-                        <li className="site-navigation-item">
-                            <a href="#">Выход</a>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
+            <Header />
             <main className="main-content">
                 <div className="p-container">
                     <h2 className="p-container-title">

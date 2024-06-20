@@ -22,142 +22,14 @@
     background-color: #fdfdff;
   }
   
-  /* header */
-  
-  .page-header {
-    margin-bottom: 40px;
-  }
-  
-  .main-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 1270px;
-    margin: 0 auto;
-    padding: 20px 55px;
-  }
-  
-  .site-navigation {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 0;
-    margin: 0;
-    margin-right: 40px;
-    list-style: none;
-    max-width: 990px;
-  }
-  
-  .site-navigation-item {
-    margin-right: 30px;
-  }
-  
-  .site-navigation-item:last-child {
-    margin-right: 0;
-  }
-  
-  .site-navigation-item a {
-    font-size: 14px;
-    line-height: 18px;
-    color: #163152;
-    text-transform: uppercase;
-    text-decoration: none;
-  }
-  
-  .site-navigation-item a:hover {
-    color: rgba(22, 49, 82, 0.5);
-  }
-  
-  .site-navigation-item a:active {
-    color: rgba(22, 49, 82, 0.3);
-  }
-  
-  /* Стиль темы */
-  
-  .theme {
-    font-size: 14px;
-    line-height: 18px;
-    color: #163152;
-    text-transform: uppercase;
-    margin-left: 30px;
-    margin-right: 6px;
-    margin-top: 8px;
-  }
-  
-  .theme-switcher {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    margin-right: 30px;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .theme-switcher li {
-    margin-right: 10px;
-  }
-  
-  .theme-switcher li:last-child {
-    margin-right: 0;
-  }
-  
-  .theme-button-light {
-    display: block;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: transparent;
-    background-image: url("../../assets/sun.svg");
-    border: 1px solid #00c6bd;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-  
-  .theme-button-light:hover {
-    opacity: 0.5;
-  }
-  
-  .theme-button-light:active {
-    opacity: 0.3;
-  }
-  
-  .theme-button-light.active {
-    background-image: url("../../assets/sun-light.svg");
-  }
-  
-  .theme-button-dark {
-    display: block;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background-image: url("../../assets/moon.svg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: transparent;
-    border: 1px solid #00c6bd;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-  
-  .theme-button-dark:hover {
-    opacity: 0.5;
-  }
-  
-  .theme-button-dark:active {
-    opacity: 0.3;
-  }
-  
-  .theme-button-dark.active {
-    background-image: url("../../assets/moon-light.svg");
-  }
+
   
   /* main */
   
   .main-content {
     width: 1170px;
     margin: 0 auto;
-    margin-top: 60px;
+    margin-top: -60px;
     padding: 0 55px;
   }
   
@@ -292,43 +164,3 @@
     color: #fdfdff;
   }
   
-  /* Theme: serif font */
-  
-  .page.serif {
-    font-family: "Philosopher", serif;
-  }
-  
-  /* Theme: dark */
-  
-  .page.dark {
-    color: #fdfdff;
-    background-color: #1d1f1f;
-  }
-  
-  .page.dark .font-button-sans-serif {
-    color: #fdfdff;
-  }
-  
-  .page.dark .font-button-serif {
-    color: #fdfdff;
-  }
-  
-  .page.dark .theme-button-light {
-    background-image: url("../../assets/sun-light.svg");
-  }
-  
-  .page.dark .logo img {
-    filter: brightness(20);
-  }
-  
-  .page.dark a {
-    color: #fdfdff;
-  }
-  
-  .page.dark a:hover {
-    opacity: 0.5;
-  }
-  
-  .page.dark a:active {
-    opacity: 0.3;
-  }

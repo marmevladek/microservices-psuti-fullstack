@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Helmet } from "react-helmet";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import userService from "../../services/student.service";
-import { logout } from "../../actions/auth";
 import "./Style.css";
 import icon from "../../assets/Icon.svg";
 import icon2 from "../../assets/Icon2.svg";
 import sending from "../../assets/sending.svg";
+import Header from "../Header/Header";
 
 const StudentMain = () => {
     const { user: currentUser } = useSelector((state) => state.auth);
@@ -96,55 +95,7 @@ const StudentMain = () => {
 
     return (
         <>
-            <Helmet>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap"
-                    rel="stylesheet"
-                />
-            </Helmet>
-            <header className="page-header">
-                <nav className="main-nav">
-                    <div className="theme-content">
-                        <ul className="theme-switcher">
-                            <p className="theme">Тема</p>
-                            <li>
-                                <button
-                                    className={`theme-button-light ${theme === "light" ? "active" : ""}`}
-                                    type="button"
-                                    onClick={() => toggleTheme("light")}
-                                ></button>
-                            </li>
-                            <li>
-                                <button
-                                    className={`theme-button-dark ${theme === "dark" ? "active" : ""}`}
-                                    type="button"
-                                    onClick={() => toggleTheme("dark")}
-                                ></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul className="site-navigation">
-                        <li className="site-navigation-item">
-                            <Link to={`/student/main`}>
-                                <a href="#">Главная страница</a>
-                            </Link>
-                            
-                        </li>
-                        <li className="site-navigation-item">
-                            <Link to={`/student/history`}>
-                            <a href="#">История</a>
-                            </Link>
-                            
-                            
-                        </li>
-                        <li className="site-navigation-item">
-                            <button onClick={logout}>Выход</button>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
+            <Header />
             <main className="main-content">
                 <section className="upload-content">
                     <form id="upload-form">

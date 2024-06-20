@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import teacherService from "../../services/teacher.service";
 import "./Style.css";
-import { Helmet } from "react-helmet";
+
 import shape from "../../assets/shape.svg"
+import Header from "../Header/Header";
 
 const TeacherMain = () => {
     const { user: currentUser } = useSelector((state) => state.auth);
@@ -13,6 +14,7 @@ const TeacherMain = () => {
     const [studentName, setStudentName] = useState("")
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState(null);
+
 
     useEffect(() => {
         teacherService.getHandlingList(currentUser.uid)
@@ -27,50 +29,18 @@ const TeacherMain = () => {
     const onChooseStatus = (e) => {
         const status = e.target.value;
         setStatus(status)
+
     }
 
     return(
         <>
-        <Helmet>
-            <meta charset="utf-8" />
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-            <link
-            href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap"
-            rel="stylesheet"
-            />
-            <link href="css/style.css" rel="stylesheet" />
-            <title>PGUTI</title>
-        </Helmet>
-        <header class="page-header">
-      <nav class="main-nav">
-        <div class="theme-content">
-          <ul class="theme-switcher">
-            <p class="theme">Тема</p>
-            <li>
-              <button class="theme-button-light active" type="button"></button>
-            </li>
-            <li>
-              <button class="theme-button-dark" type="button"></button>
-            </li>
-          </ul>
-        </div>
-        <ul class="site-navigation">
-          <li class="site-navigation-item">
-            <a href="#">Главная страница</a>
-          </li>
-          <li class="site-navigation-item">
-            <a href="#">Выход</a>
-          </li>
-        </ul>
-      </nav>
-    </header>
-    <main class="main-content">
+        <Header />
+    <main class="tm-main-content">
       <section>
         <form id="radio-form">
           <div class="radio">
             <p>Выбрать:</p>
-            <input type="radio" id="new" name="fav_language" value="New" onChange={onChooseStatus}/>
+            <input type="radio" id="new" name="fav_language" value="New"  onChange={onChooseStatus}/>
             <label for="new">Новые</label>
             <input
               type="radio"
@@ -112,8 +82,8 @@ const TeacherMain = () => {
             {handlings && handlings.map(handling =>
                 status === "New" && handling.status === null ? (
                     <tr className="status-not-checked">
-                    <td>ГРУППА</td>
-                    <td>ФИО</td>
+                    <td>{handling.studentGroup}</td>
+                    <td>{handling.studentName}</td>
                     <td>{handling.departureDate}<br/>{handling.departureTime}</td>
                     <td>{handling.inspectionDate}<br/>{handling.inspectionTime}</td>
                     <td>Не проверено</td>
@@ -125,8 +95,8 @@ const TeacherMain = () => {
                     </tr>        
                 ) : status === "Accept" && handling.status === true ? (
                     <tr className="status-accepted">
-                    <td>ГРУППА</td>
-                    <td>ФИО</td>
+                    <td>{handling.studentGroup}</td>
+                    <td>{handling.studentName}</td>
                     <td>{handling.departureDate}<br/>{handling.departureTime}</td>
                     <td>{handling.inspectionDate}<br/>{handling.inspectionTime}</td>
                     <td>Принято</td>
@@ -138,8 +108,8 @@ const TeacherMain = () => {
                     </tr>
                 ) : status === "Decline" && handling.status === false ? (
                     <tr className="status-not-accepted">
-                    <td>ГРУППА</td>
-                    <td>ФИО</td>
+                    <td>{handling.studentGroup}</td>
+                    <td>{handling.studentName}</td>
                     <td>{handling.departureDate}<br/>{handling.departureTime}</td>
                     <td>{handling.inspectionDate}<br/>{handling.inspectionTime}</td>
                     <td>Не принято</td>
